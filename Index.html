@@ -1,1 +1,213 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Evolution</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
+        .container { max-width: 600px; width: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
+        .header h1 { font-size: 28px; margin-bottom: 5px; }
+        .screen { display: none; padding: 30px 20px; min-height: 400px; max-height: 90vh; overflow-y: auto; }
+        .screen.active { display: block; }
+        .btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 20px; }
+        .btn:hover { opacity: 0.9; }
+        .input-field { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 10px; }
+        .input-field:focus { outline: none; border-color: #667eea; }
+        .class-code { background: #e7f3ff; border: 2px solid #667eea; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; }
+        .class-code-value { font-size: 24px; font-weight: bold; color: #667eea; margin: 10px 0; font-family: monospace; }
+        .leaderboard { background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; max-height: 250px; overflow-y: auto; }
+        .leaderboard-title { font-weight: bold; font-size: 18px; margin-bottom: 15px; }
+        .leaderboard-entry { display: flex; justify-content: space-between; padding: 10px; background: white; margin-bottom: 8px; border-radius: 5px; border-left: 4px solid #667eea; }
+        .scenario-box { background: #fff3cd; border-left: 4px solid #ffc107; padding: 20px; border-radius: 5px; margin: 20px 0; }
+        .scenario-title { font-weight: bold; font-size: 18px; margin-bottom: 10px; }
+        .scenario-text { font-size: 14px; line-height: 1.6; color: #555; }
+        .stats-box { background: #f8f9fa; border-radius: 10px; padding: 20px; margin: 20px 0; }
+        .stat-item { display: flex; justify-content: space-between; margin-bottom: 15px; align-items: center; }
+        .stat-label { font-weight: bold; }
+        .stat-value { font-size: 24px; font-weight: bold; color: #667eea; }
+        .trait-section { margin-bottom: 20px; }
+        .trait-label { font-weight: bold; margin-bottom: 10px; }
+        .trait-options { display: flex; gap: 10px; }
+        .trait-btn { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 10px; background: white; cursor: pointer; font-weight: bold; }
+        .trait-btn.selected { background: #667eea; color: white; border-color: #667eea; }
+        .wheel { width: 300px; height: 300px; margin: 20px auto; border: 3px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #f0f0f0; }
+        .spinning { animation: spin 2s ease-out; }
+        @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(1800deg); } }
+        .btn-secondary { background: #6c757d; margin-top: 10px; }
+        h2 { color: #333; margin-bottom: 20px; }
+        p { color: #555; margin-bottom: 15px; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐭 Mouse Evolution</h1>
+            <p>Classroom Edition - 3 Eras</p>
+        </div>
 
+        <div class="screen active" id="modeScreen">
+            <p style="font-size: 18px; text-align: center; margin: 30px 0;">Choose your role:</p>
+            <button class="btn" onclick="goTeacher()" style="background: #ff6b6b;">🎓 I'm the Teacher</button>
+            <button class="btn" onclick="goStudent()">👤 I'm a Student</button>
+        </div>
+
+        <div class="screen" id="teacherScreen">
+            <h2>Teacher Control Panel</h2>
+            <div class="class-code">
+                <p>Class Code:</p>
+                <div class="class-code-value" id="classCode">ABC123</div>
+            </div>
+            <input type="text" class="input-field" id="studentName" placeholder="Add student name">
+            <button class="btn btn-secondary" onclick="addStudent()">Add Student</button>
+            <div class="leaderboard">
+                <div class="leaderboard-title">📊 Populations</div>
+                <div id="leaderboardList"></div>
+            </div>
+            <button class="btn" onclick="spinWheel()">🎲 Spin Wheel</button>
+            <div id="scenarioDisplay"></div>
+            <button class="btn btn-secondary" onclick="nextRound()">Next Round ➡️</button>
+            <button class="btn btn-secondary" onclick="logout()">Logout</button>
+        </div>
+
+        <div class="screen" id="studentScreen">
+            <h2>Create Your Mouse</h2>
+            <input type="text" class="input-field" id="studentNameInput" placeholder="Your name">
+            <input type="text" class="input-field" id="classCodeInput" placeholder="Class code">
+            <p style="font-weight: bold;">Select your traits:</p>
+            <div id="traitContainer"></div>
+            <button class="btn" onclick="startGame()">Start Game</button>
+        </div>
+
+        <div class="screen" id="gameScreen">
+            <h2 id="eraTitle">Era 1: Natural Variation</h2>
+            <div class="round-info" id="roundInfo">Round 1 / 30</div>
+            <div class="stats-box">
+                <div class="stat-item">
+                    <span class="stat-label">Population:</span>
+                    <span class="stat-value" id="popValue">100</span>
+                </div>
+            </div>
+            <div class="leaderboard">
+                <div class="leaderboard-title">📊 All Populations</div>
+                <div id="gameLeaderboard"></div>
+            </div>
+            <div class="scenario-box">
+                <div class="scenario-title" id="scenarioTitle">Waiting for teacher...</div>
+                <div class="scenario-text" id="scenarioDesc"></div>
+            </div>
+            <button class="btn btn-secondary" onclick="checkResult()">Check Result</button>
+            <button class="btn btn-secondary" onclick="nextRound()">Ready for Next</button>
+        </div>
+    </div>
+
+    <script>
+        const FIREBASE_URL = 'https://naturalselection-8d756-default-rtdb.firebaseio.com';
+        let gameMode = null, classCode = null, round = 1, era = 1;
+        
+        const traits = [
+            {name: 'Size', opts: ['Large', 'Small']},
+            {name: 'Color', opts: ['Brown', 'Light Brown']},
+            {name: 'Immunity', opts: ['Type A', 'Type B']},
+            {name: 'Fur', opts: ['Short', 'Long']},
+            {name: 'Claws', opts: ['Short', 'Long']},
+            {name: 'Tail', opts: ['Short', 'Long']},
+            {name: 'Teeth', opts: ['Short', 'Long']},
+            {name: 'Activity', opts: ['Diurnal', 'Nocturnal']},
+            {name: 'Social', opts: ['Solitary', 'Social']}
+        ];
+
+        let studentMouse = {};
+
+        function show(id) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+        }
+
+        function goTeacher() {
+            gameMode = 'teacher';
+            classCode = Math.random().toString(36).substr(2, 6).toUpperCase();
+            document.getElementById('classCode').textContent = classCode;
+            show('teacherScreen');
+            refreshLeaderboard();
+        }
+
+        function goStudent() {
+            show('studentScreen');
+            initTraits();
+        }
+
+        function initTraits() {
+            const container = document.getElementById('traitContainer');
+            container.innerHTML = '';
+            traits.forEach(trait => {
+                const div = document.createElement('div');
+                div.className = 'trait-section';
+                div.innerHTML = `<div class="trait-label">${trait.name}</div><div class="trait-options">`;
+                trait.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'trait-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        studentMouse[trait.name] = opt;
+                        document.querySelectorAll('.trait-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    };
+                    div.querySelector('.trait-options').appendChild(btn);
+                });
+                container.appendChild(div);
+            });
+        }
+
+        function startGame() {
+            const name = document.getElementById('studentNameInput').value;
+            const code = document.getElementById('classCodeInput').value.toUpperCase();
+            if (!name || !code) {
+                alert('Enter name and code');
+                return;
+            }
+            classCode = code;
+            show('gameScreen');
+            refreshLeaderboard();
+        }
+
+        function addStudent() {
+            const name = document.getElementById('studentName').value;
+            if (name) {
+                document.getElementById('studentName').value = '';
+                refreshLeaderboard();
+            }
+        }
+
+        function refreshLeaderboard() {
+            const html = '<div class="leaderboard-entry"><span>Sample Student</span><span>100</span></div>';
+            document.getElementById('leaderboardList').innerHTML = html;
+            document.getElementById('gameLeaderboard').innerHTML = html;
+        }
+
+        function spinWheel() {
+            alert('Scenario selected!');
+        }
+
+        function checkResult() {
+            alert('You won this round!');
+        }
+
+        function nextRound() {
+            round++;
+            if (round > 30) {
+                alert('Game Over!');
+                round = 1;
+            }
+            document.getElementById('roundInfo').textContent = `Round ${round} / 30`;
+        }
+
+        function logout() {
+            gameMode = null;
+            show('modeScreen');
+        }
+    </script>
+</body>
+</html>
