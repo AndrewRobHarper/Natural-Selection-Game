@@ -411,7 +411,14 @@
         }
 
         function checkResult() {
-            if (gameState.resultShown) return;
+            if (!gameState.currentScenario) {
+                alert('No scenario loaded yet. Wait for teacher to send scenario.');
+                return;
+            }
+            if (gameState.resultShown) {
+                alert('You already checked this round. Click Ready for Next.');
+                return;
+            }
             gameState.resultShown = true;
 
             let won = false;
