@@ -22,7 +22,7 @@
         }
 
         .container {
-            max-width: 500px;
+            max-width: 600px;
             width: 100%;
             background: white;
             border-radius: 20px;
@@ -89,19 +89,6 @@
             margin: 10px 5px 10px 0;
         }
 
-        .btn-random {
-            padding: 15px;
-            background: #ff6b6b;
-            color: white;
-            border: none;
-            border-radius: 10px;
-            font-weight: bold;
-            cursor: pointer;
-            width: 100%;
-            font-size: 16px;
-            margin: 10px 0;
-        }
-
         .input-field {
             width: 100%;
             padding: 12px;
@@ -138,6 +125,8 @@
             border-radius: 10px;
             padding: 20px;
             margin: 20px 0;
+            max-height: 300px;
+            overflow-y: auto;
         }
 
         .leaderboard-title {
@@ -295,12 +284,6 @@
             cursor: pointer;
             font-size: 14px;
             font-weight: 600;
-            transition: all 0.3s ease;
-        }
-
-        .trait-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
         }
 
         .trait-btn.selected {
@@ -309,21 +292,14 @@
             border-color: #667eea;
         }
 
-        .phase-indicator {
+        .era-indicator {
             background: #667eea;
             color: white;
-            padding: 10px;
+            padding: 15px;
             border-radius: 5px;
             margin-bottom: 15px;
             text-align: center;
             font-weight: bold;
-        }
-
-        .controls {
-            display: flex;
-            gap: 10px;
-            margin-top: 20px;
-            flex-wrap: wrap;
         }
 
         .round-info {
@@ -333,39 +309,86 @@
             margin: 10px 0;
         }
 
-        .status-message {
-            padding: 15px;
-            border-radius: 10px;
-            margin: 15px 0;
-            text-align: center;
-            font-weight: bold;
-        }
-
-        .status-success {
-            background: #d4edda;
-            color: #155724;
-            border: 2px solid #28a745;
-        }
-
-        .status-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 2px solid #f5c6cb;
-        }
-
-        .loading {
+        .category-badge {
             display: inline-block;
-            width: 20px;
-            height: 20px;
-            border: 3px solid #f3f3f3;
-            border-top: 3px solid #667eea;
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
+            background: #e7f3ff;
+            color: #0c5aa0;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
+            font-size: 14px;
+            margin: 10px 0;
+        }
+
+        .wheel-container {
+            text-align: center;
+            margin: 20px 0;
+        }
+
+        .spinning-wheel {
+            width: 300px;
+            height: 300px;
+            margin: 0 auto 20px;
+            position: relative;
+            display: inline-block;
+        }
+
+        .wheel-slice {
+            position: absolute;
+            width: 150px;
+            height: 150px;
+            transform-origin: 150px 150px;
+            clip-path: polygon(50% 50%, 100% 0, 100% 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            font-weight: bold;
+            color: white;
+            text-shadow: 1px 1px 2px rgba(0,0,0,0.3);
+        }
+
+        .wheel-pointer {
+            position: absolute;
+            top: 0;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 0;
+            height: 0;
+            border-left: 15px solid transparent;
+            border-right: 15px solid transparent;
+            border-top: 30px solid #333;
+            z-index: 10;
+        }
+
+        .spin-button {
+            padding: 15px 40px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            font-size: 16px;
+        }
+
+        .spinning {
+            animation: spin 2s ease-out;
         }
 
         @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
+            from { transform: rotate(0deg); }
+            to { transform: rotate(1800deg); }
+        }
+
+        .adaptation-badge {
+            background: #e8f5e9;
+            border: 2px solid #4caf50;
+            padding: 10px;
+            border-radius: 5px;
+            margin: 10px 0;
+            color: #2e7d32;
+            font-weight: bold;
         }
     </style>
 </head>
@@ -373,18 +396,12 @@
     <div class="container">
         <div class="header">
             <h1>🐭 Mouse Evolution</h1>
-            <p>Classroom Edition (REST API)</p>
+            <p>Classroom Edition - 3 Eras</p>
         </div>
 
         <!-- MODE SELECTION SCREEN -->
         <div class="screen active" id="modeScreen">
-            <div style="margin-bottom: 30px;">
-                <p style="color: #28a745; font-size: 14px; margin-bottom: 20px;">
-                    ✅ Ready to Play
-                </p>
-            </div>
-
-            <p style="font-size: 16px; color: #555; margin-bottom: 20px;">Choose your role:</p>
+            <p style="font-size: 16px; color: #555; margin: 20px 0;">Choose your role:</p>
             <button class="btn-primary" onclick="goToMode('teacher')" style="background: #ff6b6b; margin-bottom: 10px;">🎓 I'm the Teacher</button>
             <button class="btn-primary" onclick="goToMode('student')">👤 I'm a Student</button>
         </div>
@@ -396,26 +413,31 @@
             <div class="class-code-display">
                 <p>Class Code:</p>
                 <div class="class-code-value" id="classCodeDisplay">LOADING</div>
-                <p style="font-size: 12px; margin-top: 10px;">Share this code with students</p>
+                <p style="font-size: 12px; margin-top: 10px;">Share with students</p>
             </div>
 
             <div style="margin: 20px 0;">
-                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;">Add Student Name:</label>
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;">Add Student:</label>
                 <div style="display: flex; gap: 10px;">
                     <input type="text" class="input-field" id="studentNameInput" placeholder="Student name" style="margin: 0; flex: 1;">
                     <button class="btn-secondary" onclick="addStudent()" style="margin: 0;">Add</button>
                 </div>
             </div>
 
-            <div class="leaderboard" id="teacherLeaderboard">
-                <div class="leaderboard-title">📊 Current Populations</div>
-                <div id="leaderboardContent" style="color: #666; text-align: center;">Loading students...</div>
+            <div class="leaderboard">
+                <div class="leaderboard-title">📊 Populations</div>
+                <div id="leaderboardContent" style="color: #666; text-align: center;">Loading...</div>
+            </div>
+
+            <div class="round-info" id="roundInfo">Round 1 / 30</div>
+
+            <div class="wheel-container">
+                <div class="spinning-wheel" id="wheel"></div>
+                <button class="spin-button" onclick="spinWheel()">🎲 Spin Wheel</button>
             </div>
 
             <div id="scenarioDisplay"></div>
 
-            <button class="btn-random" onclick="selectRandomScenario()">🎲 Select Random Scenario</button>
-            
             <button class="btn-secondary" style="width: 100%;" onclick="advanceRound()">Next Round ➡️</button>
             <button class="btn-secondary" style="width: 100%; background: #6c757d;" onclick="logoutTeacher()">Logout</button>
         </div>
@@ -423,23 +445,20 @@
         <!-- STUDENT TRAIT SELECTION -->
         <div class="screen" id="studentTraitScreen">
             <h2 style="margin-bottom: 15px; color: #333;">Create Your Mouse</h2>
-            <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Enter your name and class code:</p>
+            <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Name and class code:</p>
             
-            <input type="text" class="input-field" id="studentName" placeholder="Your name" maxlength="20">
-            <input type="text" class="input-field" id="classCode" placeholder="Class code (from teacher)">
+            <input type="text" class="input-field" id="studentName" placeholder="Your name">
+            <input type="text" class="input-field" id="classCode" placeholder="Class code">
             
-            <p style="color: #333; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">Select your mouse traits:</p>
+            <p style="color: #333; font-weight: bold; margin-top: 20px;">Select traits:</p>
             <div id="traitContainer"></div>
             <button class="btn-primary" onclick="confirmStudentMouse()">Start Game</button>
         </div>
 
         <!-- STUDENT GAME SCREEN -->
         <div class="screen" id="studentGameScreen">
-            <div class="phase-indicator" id="studentPhaseIndicator">Phase 1: Natural Variability</div>
-            
-            <div class="round-info">
-                <strong id="studentRoundDisplay">Round 1 / 16</strong>
-            </div>
+            <div class="era-indicator" id="studentEraIndicator">Era 1: Natural Variation</div>
+            <div class="round-info" id="studentRoundInfo">Round 1 / 30</div>
 
             <div class="stats-box">
                 <div class="stat-item">
@@ -462,147 +481,129 @@
                 </div>
             </div>
 
+            <div class="leaderboard">
+                <div class="leaderboard-title">📊 All Populations</div>
+                <div id="studentLeaderboard" style="color: #666; text-align: center;">Loading...</div>
+            </div>
+
             <div class="scenario-box" id="studentScenarioBox">
-                <div class="scenario-title" id="studentScenarioTitle">Waiting for teacher...</div>
-                <div class="scenario-text" id="studentScenarioText">Your teacher will send the first scenario soon.</div>
+                <div class="scenario-title" id="studentScenarioTitle">Waiting...</div>
+                <div class="scenario-text" id="studentScenarioText">Teacher will send scenario</div>
+                <div id="categoryBadge"></div>
             </div>
 
             <div class="result-box" id="studentResultBox" style="display: none;"></div>
+            <div id="adaptationNotice"></div>
 
-            <div class="controls">
+            <div style="display: flex; gap: 10px; margin-top: 20px;">
                 <button class="btn-secondary" onclick="studentShowResult()" style="flex: 1;">Check Result</button>
-                <button class="btn-secondary" onclick="studentWaitNextRound()" style="flex: 1;">Ready for Next</button>
+                <button class="btn-secondary" onclick="studentWaitNextRound()" style="flex: 1;">Ready Next</button>
             </div>
         </div>
     </div>
 
     <script>
-        // Firebase REST API Configuration
         const FIREBASE_URL = 'https://naturalselection-8d756-default-rtdb.firebaseio.com';
 
-        // Game state
-        let gameMode = null;
-        let classCode = null;
-        let currentRound = 1;
-        let currentPhase = 1;
-        let currentScenario = null;
-        let studentState = {
-            name: '',
-            mouse: {},
-            population: 100,
-            round: 1,
-            wins: 0,
-            losses: 0,
-            phase: 1,
-            resultShown: false
-        };
+        let gameMode = null, classCode = null, currentRound = 1, currentEra = 1, currentScenario = null;
+        let lastScenarioTitle = null;
 
-        // Trait definitions
         const traits = [
             { name: 'Size', options: ['Large', 'Small'], key: 'size' },
             { name: 'Color', options: ['Brown', 'Light Brown'], key: 'color' },
             { name: 'Immunity', options: ['Type A', 'Type B'], key: 'immunity' },
-            { name: 'Fur Length', options: ['Short', 'Long'], key: 'fur' },
-            { name: 'Claws', options: ['Short (Climbing)', 'Long (Digging)'], key: 'claws' },
-            { name: 'Tail', options: ['Short (Tight Spaces)', 'Long (Jumping)'], key: 'tail' },
-            { name: 'Teeth', options: ['Short (Soft Foods)', 'Long (Hard Foods)'], key: 'teeth' },
-            { name: 'Activity', options: ['Diurnal (Day)', 'Nocturnal (Night)'], key: 'activity' },
+            { name: 'Fur', options: ['Short', 'Long'], key: 'fur' },
+            { name: 'Claws', options: ['Short', 'Long'], key: 'claws' },
+            { name: 'Tail', options: ['Short', 'Long'], key: 'tail' },
+            { name: 'Teeth', options: ['Short', 'Long'], key: 'teeth' },
+            { name: 'Activity', options: ['Diurnal', 'Nocturnal'], key: 'activity' },
             { name: 'Social', options: ['Solitary', 'Social'], key: 'social' }
         ];
 
-        // Base scenarios
-        const basePhase1Scenarios = [
-            { title: 'The Spring Drought', description: 'Unseasonably dry spring. Water sources dry up early.', category: 'climate', icon: '💧', favored: ['size', 'fur'] },
-            { title: 'The Predator Boom', description: 'Hawk and coyote populations explode.', category: 'predation', icon: '🦅', favored: ['color', 'activity'] },
-            { title: 'The Mast Year', description: 'Trees produce massive seed crops. Food is abundant.', category: 'good-times', icon: '🌟', favored: [] },
-            { title: 'The Late Frost', description: 'Unexpected frost kills emerging plants.', category: 'climate', icon: '❄️', favored: ['social', 'claws'] },
-            { title: 'The Parasite Outbreak', description: 'Warm, wet conditions spread parasites.', category: 'disease', icon: '🦠', favored: ['immunity', 'fur'] },
-            { title: 'The Flood', description: 'Heavy rains flood burrows.', category: 'environment', icon: '🌊', favored: ['claws', 'tail'] },
-            { title: 'The Summer Heat', description: 'Unusual heat wave. Temperatures soar.', category: 'climate', icon: '🔥', favored: ['fur', 'size'] },
-            { title: 'The Forest Fire', description: 'Wildfire sweeps through, burning habitat.', category: 'environment', icon: '🔥', favored: ['color', 'claws'] },
-            { title: 'The Safe Season', description: 'Predators migrate away. Food is plentiful.', category: 'good-times', icon: '🌟', favored: [] }
+        const adaptations = [
+            { name: 'Stealth Predator', traitCombo: { activity: 'Nocturnal', social: 'Solitary' } },
+            { name: 'Apex Hunter', traitCombo: { activity: 'Nocturnal', teeth: 'Long' } },
+            { name: 'Alpine Specialist', traitCombo: { fur: 'Long', claws: 'Long' } },
+            { name: 'Shadow Dweller', traitCombo: { color: 'Brown', activity: 'Nocturnal' } },
+            { name: 'Deep Burrower', traitCombo: { claws: 'Long', size: 'Small' } },
+            { name: 'Swift Runner', traitCombo: { size: 'Small', tail: 'Long' } },
+            { name: 'Camouflage Master', traitCombo: { fur: 'Long', color: 'Brown' } },
+            { name: 'Phantom Mouse', traitCombo: { color: 'Brown', size: 'Small', activity: 'Nocturnal' } },
+            { name: 'Pack Hunter', traitCombo: { social: 'Social', size: 'Large' } },
+            { name: 'Metabolic Specialist', traitCombo: { fur: 'Long', size: 'Small' } },
+            { name: 'Environmental Master', traitCombo: { immunity: 'Type B', fur: 'Long' } },
+            { name: 'Acute Senses', traitCombo: { activity: 'Nocturnal', teeth: 'Long' } },
+            { name: 'Armored Defender', traitCombo: { claws: 'Long', tail: 'Long' } },
+            { name: 'Cooperative Hunter', traitCombo: { social: 'Social', teeth: 'Long' } },
+            { name: 'Nocturnal Assassin', traitCombo: { activity: 'Nocturnal', claws: 'Long' } },
+            { name: 'Evasion Expert', traitCombo: { tail: 'Long', size: 'Small' } }
         ];
 
-        const basePhase2Scenarios = [
-            { title: 'The Extreme Cold', description: 'Record-breaking winter.', category: 'climate', icon: '❄️', favored: ['fur', 'size'] },
-            { title: 'The Unpredictable Weather', description: 'Seasons lose meaning. Warm days followed by hard freezes.', category: 'climate', icon: '⛈️', favored: ['immunity', 'social'] },
-            { title: 'The Invasive Predator', description: 'A non-native predator arrives.', category: 'predation', icon: '🦅', favored: ['activity', 'tail'] },
-            { title: 'The Seed Failure', description: 'Trees don\'t produce seeds.', category: 'climate', icon: '🌾', favored: ['size', 'teeth'] },
-            { title: 'The Disease Surge', description: 'Diseases persist year-round.', category: 'disease', icon: '🦠', favored: ['immunity', 'social'] },
-            { title: 'The Extreme Drought', description: 'Prolonged drought.', category: 'climate', icon: '💧', favored: ['size', 'claws'] },
-            { title: 'The Timing Mismatch', description: 'Insects emerge early but birds migrate late.', category: 'environment', icon: '🔄', favored: ['activity', 'color'] },
-            { title: 'The Extreme Storm', description: 'Intense storms become common.', category: 'environment', icon: '🌪️', favored: ['claws', 'fur'] },
-            { title: 'The Abundant Winter', description: 'Winter of plenty.', category: 'good-times', icon: '🌟', favored: [] }
+        // Scenario sets for each era
+        const era1Scenarios = [
+            { title: 'Spring Rains', desc: 'Abundant water and food', category: 'climate', icon: '💧', favored: [] },
+            { title: 'Mild Predation', desc: 'Few predators around', category: 'predation', icon: '🦅', favored: [] },
+            { title: 'Seed Abundance', desc: 'Lots of food available', category: 'good-times', icon: '🌟', favored: [] },
+            { title: 'Safe Burrows', desc: 'Good shelter everywhere', category: 'environment', icon: '🏠', favored: [] },
+            { title: 'Healthy Population', desc: 'No diseases spreading', category: 'disease', icon: '💚', favored: [] }
         ];
 
-        // Wheel scenarios (20 sections each)
-        const phase1Scenarios = [
-            basePhase1Scenarios[0], basePhase1Scenarios[0], basePhase1Scenarios[0], basePhase1Scenarios[0],
-            basePhase1Scenarios[1], basePhase1Scenarios[1], basePhase1Scenarios[1], basePhase1Scenarios[1],
-            basePhase1Scenarios[3], basePhase1Scenarios[3],
-            basePhase1Scenarios[6], basePhase1Scenarios[6],
-            basePhase1Scenarios[5], basePhase1Scenarios[5],
-            basePhase1Scenarios[7], basePhase1Scenarios[7],
-            basePhase1Scenarios[4],
-            basePhase1Scenarios[2],
-            basePhase1Scenarios[8], basePhase1Scenarios[8]
+        const era2Scenarios = [
+            { title: 'The Great Drought', desc: 'Water disappears. Only small, efficient mice survive', category: 'climate', icon: '🏜️', favored: ['size'] },
+            { title: 'Predator Invasion', desc: 'New apex predators arrive. Need camouflage or speed', category: 'predation', icon: '🦁', favored: ['color', 'activity', 'tail'] },
+            { title: 'Crop Failure', desc: 'Food sources collapse. Need specialized teeth', category: 'climate', icon: '🌾', favored: ['teeth'] },
+            { title: 'Flood Disaster', desc: 'Burrows destroyed. Need good digging claws', category: 'environment', icon: '🌊', favored: ['claws'] },
+            { title: 'Disease Outbreak', desc: 'Parasites spread. Need strong immunity', category: 'disease', icon: '🦠', favored: ['immunity'] }
         ];
 
-        const phase2Scenarios = [
-            basePhase2Scenarios[0], basePhase2Scenarios[0], basePhase2Scenarios[0], basePhase2Scenarios[0],
-            basePhase2Scenarios[1], basePhase2Scenarios[1],
-            basePhase2Scenarios[5], basePhase2Scenarios[5],
-            basePhase2Scenarios[3], basePhase2Scenarios[3],
-            basePhase2Scenarios[2], basePhase2Scenarios[2], basePhase2Scenarios[2], basePhase2Scenarios[2],
-            basePhase2Scenarios[6], basePhase2Scenarios[6],
-            basePhase2Scenarios[7], basePhase2Scenarios[7],
-            basePhase2Scenarios[4],
-            basePhase2Scenarios[8]
+        const era3Scenarios = [
+            { title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', category: 'good-times', icon: '🌟', favored: [] },
+            { title: 'Gradual Recovery', desc: 'Resources slowly return. Specialists do best', category: 'climate', icon: '📈', favored: [] }
         ];
 
-        // Firebase REST API helper functions
+        let studentState = {
+            name: '', mouse: {}, population: 100, wins: 0, losses: 0, resultShown: false,
+            traitFrequency: {}, adaptationsUnlocked: [], speciated: false
+        };
+
+        // Firebase REST helpers
         async function firebaseGet(path) {
             try {
-                const response = await fetch(`${FIREBASE_URL}${path}.json`);
-                return await response.json();
-            } catch (error) {
-                console.error('Firebase GET error:', error);
+                const res = await fetch(`${FIREBASE_URL}${path}.json`);
+                return await res.json();
+            } catch (e) {
+                console.error(e);
                 return null;
             }
         }
 
         async function firebaseSet(path, data) {
             try {
-                const response = await fetch(`${FIREBASE_URL}${path}.json`, {
+                await fetch(`${FIREBASE_URL}${path}.json`, {
                     method: 'PUT',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('Firebase SET error:', error);
-                return null;
+            } catch (e) {
+                console.error(e);
             }
         }
 
         async function firebaseUpdate(path, data) {
             try {
-                const response = await fetch(`${FIREBASE_URL}${path}.json`, {
+                await fetch(`${FIREBASE_URL}${path}.json`, {
                     method: 'PATCH',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify(data)
                 });
-                return await response.json();
-            } catch (error) {
-                console.error('Firebase UPDATE error:', error);
-                return null;
+            } catch (e) {
+                console.error(e);
             }
         }
 
-        // UI Functions
-        function goToScreen(screenId) {
+        function goToScreen(id) {
             document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
-            document.getElementById(screenId).classList.add('active');
+            document.getElementById(id).classList.add('active');
         }
 
         function goToMode(mode) {
@@ -627,132 +628,167 @@
         }
 
         async function setupTeacherDashboard() {
-            // Load existing students
-            const students = await firebaseGet(`/classes/${classCode}/students`);
-            if (students) {
-                updateTeacherLeaderboard(students);
-            }
-            
-            // Refresh students every 2 seconds
+            createWheel();
             setInterval(async () => {
                 const students = await firebaseGet(`/classes/${classCode}/students`);
                 if (students) {
-                    updateTeacherLeaderboard(students);
+                    const list = Object.values(students).map(s => ({
+                        name: s.name,
+                        population: s.population || 100
+                    }));
+                    const sorted = list.sort((a, b) => b.population - a.population);
+                    const html = sorted.map(s => `
+                        <div class="leaderboard-entry">
+                            <span class="leaderboard-name">${s.name}</span>
+                            <span class="leaderboard-pop">${s.population}</span>
+                        </div>
+                    `).join('');
+                    document.getElementById('leaderboardContent').innerHTML = html || '<p style="color: #666;">No students</p>';
                 }
             }, 2000);
         }
 
-        function updateTeacherLeaderboard(studentsObj) {
-            const students = Object.values(studentsObj || {}).map(s => ({
-                name: s.name,
-                population: s.population || 100
-            }));
+        function createWheel() {
+            const wheel = document.getElementById('wheel');
+            wheel.innerHTML = '';
+            const scenarios = currentEra === 1 ? era1Scenarios : currentEra === 2 ? era2Scenarios : era3Scenarios;
             
-            const sorted = students.sort((a, b) => b.population - a.population);
-            const html = sorted.map(s => `
-                <div class="leaderboard-entry">
-                    <span class="leaderboard-name">${s.name}</span>
-                    <span class="leaderboard-pop">${s.population}</span>
+            scenarios.forEach((s, i) => {
+                const angle = (i / scenarios.length) * 360;
+                const colors = {
+                    'climate': '#ff9800',
+                    'predation': '#f44336',
+                    'environment': '#009688',
+                    'disease': '#9c27b0',
+                    'good-times': '#4caf50'
+                };
+                
+                const slice = document.createElement('div');
+                slice.className = 'wheel-slice';
+                slice.style.transform = `rotate(${angle}deg)`;
+                slice.style.background = colors[s.category];
+                slice.textContent = s.icon;
+                wheel.appendChild(slice);
+            });
+
+            const pointer = document.createElement('div');
+            pointer.className = 'wheel-pointer';
+            wheel.appendChild(pointer);
+        }
+
+        function spinWheel() {
+            const wheel = document.getElementById('wheel');
+            wheel.classList.remove('spinning');
+            void wheel.offsetWidth;
+            wheel.classList.add('spinning');
+
+            setTimeout(() => {
+                const scenarios = currentEra === 1 ? era1Scenarios : currentEra === 2 ? era2Scenarios : era3Scenarios;
+                const randomIndex = Math.floor(Math.random() * scenarios.length);
+                currentScenario = scenarios[randomIndex];
+                displayScenario();
+            }, 2000);
+        }
+
+        function displayScenario() {
+            const colors = {
+                'climate': '#ff9800',
+                'predation': '#f44336',
+                'environment': '#009688',
+                'disease': '#9c27b0',
+                'good-times': '#4caf50'
+            };
+
+            const categoryNames = {
+                'climate': '🌡️ Climate',
+                'predation': '🦅 Predation',
+                'environment': '🌍 Environment',
+                'disease': '🦠 Disease',
+                'good-times': '🌟 Good Times'
+            };
+
+            document.getElementById('scenarioDisplay').innerHTML = `
+                <div style="text-align: center; margin: 20px 0;">
+                    <div style="font-size: 32px; margin-bottom: 10px;">${currentScenario.icon}</div>
+                    <div class="category-badge">${categoryNames[currentScenario.category]}</div>
                 </div>
-            `).join('');
-            document.getElementById('leaderboardContent').innerHTML = html || '<p style="color: #666;">No students yet</p>';
+                <div class="scenario-box">
+                    <div class="scenario-title">${currentScenario.title}</div>
+                    <div class="scenario-text">${currentScenario.desc}</div>
+                </div>
+            `;
+
+            firebaseSet(`/classes/${classCode}/currentScenario`, {
+                title: currentScenario.title,
+                description: currentScenario.desc,
+                category: currentScenario.category,
+                icon: currentScenario.icon,
+                favored: currentScenario.favored,
+                round: currentRound,
+                era: currentEra
+            });
         }
 
         async function addStudent() {
             const name = document.getElementById('studentNameInput').value.trim();
             if (!name) {
-                alert('Enter a student name');
+                alert('Enter name');
                 return;
             }
-            
             await firebaseSet(`/classes/${classCode}/students/${name}`, {
-                name: name,
-                population: 100
+                name: name, population: 100
             });
-            
             document.getElementById('studentNameInput').value = '';
-        }
-
-        async function selectRandomScenario() {
-            const scenarios = currentPhase === 1 ? phase1Scenarios : phase2Scenarios;
-            currentScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
-            
-            const categoryNames = {
-                'environment': '🌍 Environment',
-                'predation': '🦅 Predation',
-                'disease': '🦠 Disease',
-                'climate': '🌡️ Climate',
-                'good-times': '🌟 Good Times'
-            };
-
-            const display = document.getElementById('scenarioDisplay');
-            display.innerHTML = `
-                <div style="margin: 20px 0;">
-                    <div style="text-align: center; margin-bottom: 15px;">
-                        <div style="font-size: 24px; margin-bottom: 10px;">${currentScenario.icon}</div>
-                        <div style="background: #e7f3ff; color: #0c5aa0; padding: 8px 15px; border-radius: 20px; display: inline-block; font-weight: bold; font-size: 14px;">
-                            ${categoryNames[currentScenario.category]}
-                        </div>
-                    </div>
-                </div>
-                <div class="scenario-box">
-                    <div class="scenario-title">${currentScenario.title}</div>
-                    <div class="scenario-text">${currentScenario.description}</div>
-                </div>
-            `;
-
-            await firebaseSet(`/classes/${classCode}/currentScenario`, {
-                title: currentScenario.title,
-                description: currentScenario.description,
-                category: currentScenario.category,
-                icon: currentScenario.icon,
-                favored: currentScenario.favored,
-                round: currentRound,
-                phase: currentPhase
-            });
         }
 
         async function advanceRound() {
             if (!currentScenario) {
-                alert('Select a scenario first!');
+                alert('Select scenario first!');
                 return;
             }
 
             currentRound++;
-            if (currentRound === 9 && currentPhase === 1) {
-                currentPhase = 2;
-                alert('Climate Shift! Phase 2 begins.');
-            } else if (currentRound === 17) {
+            
+            if (currentRound === 11 && currentEra === 1) {
+                currentEra = 2;
+                alert('🚨 ERA SHIFT! Major disruption event! Era 2 begins!');
+                createWheel();
+            } else if (currentRound === 21 && currentEra === 2) {
+                currentEra = 3;
+                alert('📈 ERA SHIFT! New ecosystem emerges! Era 3 begins!');
+                createWheel();
+            } else if (currentRound === 31) {
                 alert('Game Over!');
                 currentRound = 1;
-                currentPhase = 1;
+                currentEra = 1;
+                createWheel();
             }
+
+            document.getElementById('roundInfo').textContent = `Round ${currentRound} / 30`;
 
             await firebaseUpdate(`/classes/${classCode}`, {
                 currentRound: currentRound,
-                currentPhase: currentPhase
+                currentEra: currentEra
             });
-            
-            selectRandomScenario();
+
+            spinWheel();
         }
 
         async function logoutTeacher() {
             classCode = null;
             gameMode = null;
             currentRound = 1;
-            currentPhase = 1;
+            currentEra = 1;
             goToScreen('modeScreen');
         }
 
         function initializeTraits() {
             const container = document.getElementById('traitContainer');
             container.innerHTML = '';
-            
             traits.forEach(trait => {
                 const section = document.createElement('div');
                 section.className = 'trait-section';
                 section.innerHTML = `<div class="trait-label">${trait.name}</div><div class="trait-options">`;
-                
                 trait.options.forEach(option => {
                     const btn = document.createElement('button');
                     btn.className = 'trait-btn';
@@ -760,14 +796,12 @@
                     btn.onclick = () => selectStudentTrait(trait.key, option);
                     section.querySelector('.trait-options').appendChild(btn);
                 });
-                
                 container.appendChild(section);
             });
         }
 
         function selectStudentTrait(key, value) {
             studentState.mouse[key] = value;
-            
             document.querySelectorAll('.trait-btn').forEach(btn => {
                 const parentKey = traits.find(t => t.name === btn.parentElement.parentElement.querySelector('.trait-label').textContent)?.key;
                 if (parentKey === key && btn.textContent === value) {
@@ -782,17 +816,21 @@
             const name = document.getElementById('studentName').value.trim();
             const code = document.getElementById('classCode').value.trim().toUpperCase();
             
-            if (!name || !code) {
-                alert('Enter your name and class code');
-                return;
-            }
-            if (Object.keys(studentState.mouse).length < traits.length) {
-                alert('Select all traits');
+            if (!name || !code || Object.keys(studentState.mouse).length < traits.length) {
+                alert('Fill all fields and select all traits');
                 return;
             }
 
             studentState.name = name;
             classCode = code;
+
+            // Initialize trait frequency
+            traits.forEach(t => {
+                studentState.traitFrequency[t.key] = {
+                    [studentState.mouse[t.key]]: 1,
+                    [t.options.find(o => o !== studentState.mouse[t.key])]: 0
+                };
+            });
 
             await firebaseSet(`/classes/${classCode}/students/${name}`, {
                 name: name,
@@ -803,27 +841,55 @@
 
             goToScreen('studentGameScreen');
             watchForScenario();
+            updateLeaderboard();
         }
 
         let lastScenarioTitle = null;
-
         function watchForScenario() {
             setInterval(async () => {
                 const scenario = await firebaseGet(`/classes/${classCode}/currentScenario`);
-                if (scenario) {
-                    // Only reset resultShown flag if scenario CHANGED
-                    if (scenario.title !== lastScenarioTitle) {
-                        lastScenarioTitle = scenario.title;
-                        studentState.resultShown = false;
-                        document.getElementById('studentResultBox').style.display = 'none';
-                    }
-                    
+                if (scenario && scenario.title !== lastScenarioTitle) {
+                    lastScenarioTitle = scenario.title;
                     currentScenario = scenario;
-                    studentState.phase = scenario.phase;
+                    studentState.resultShown = false;
+
+                    const categoryNames = {
+                        'climate': '🌡️ Climate', 'predation': '🦅 Predation',
+                        'environment': '🌍 Environment', 'disease': '🦠 Disease',
+                        'good-times': '🌟 Good Times'
+                    };
+
                     document.getElementById('studentScenarioTitle').textContent = scenario.title;
                     document.getElementById('studentScenarioText').textContent = scenario.description;
+                    document.getElementById('categoryBadge').innerHTML = `<div class="category-badge">${categoryNames[scenario.category]}</div>`;
+                    document.getElementById('studentResultBox').style.display = 'none';
+                    document.getElementById('adaptationNotice').innerHTML = '';
+                    
+                    const eraNames = ['', 'Era 1: Natural Variation', 'Era 2: The Disruption', 'Era 3: New Equilibrium'];
+                    document.getElementById('studentEraIndicator').textContent = eraNames[scenario.era];
+                    document.getElementById('studentRoundInfo').textContent = `Round ${scenario.round} / 30`;
                 }
             }, 1000);
+        }
+
+        function updateLeaderboard() {
+            setInterval(async () => {
+                const students = await firebaseGet(`/classes/${classCode}/students`);
+                if (students) {
+                    const list = Object.values(students).map(s => ({
+                        name: s.name,
+                        population: s.population || 100
+                    }));
+                    const sorted = list.sort((a, b) => b.population - a.population);
+                    const html = sorted.map(s => `
+                        <div class="leaderboard-entry">
+                            <span class="leaderboard-name">${s.name}</span>
+                            <span class="leaderboard-pop">${s.population}</span>
+                        </div>
+                    `).join('');
+                    document.getElementById('studentLeaderboard').innerHTML = html;
+                }
+            }, 2000);
         }
 
         async function studentShowResult() {
@@ -833,55 +899,63 @@
             const resultBox = document.getElementById('studentResultBox');
             resultBox.style.display = 'block';
 
-            if (currentScenario.category === 'good-times') {
-                studentState.wins++;
+            let isWin = false;
+            if (currentScenario.favored.length === 0) {
+                isWin = true;
                 const increase = Math.floor(studentState.population * 0.20);
                 studentState.population += increase;
                 resultBox.className = 'result-box win';
-                resultBox.innerHTML = `✨ Good Times!<br><span class="population-change increase">+${increase} mice</span>`;
+                resultBox.innerHTML = `✨ Favorable conditions!<br><span class="population-change increase">+${increase}</span>`;
             } else {
-                let isWin = currentScenario.favored.some(trait => {
-                    const value = studentState.mouse[trait];
-                    if (studentState.phase === 1) {
-                        if (trait === 'size') return value === 'Small';
-                        if (trait === 'fur') return value === 'Long';
-                        if (trait === 'color') return value === 'Brown';
-                        if (trait === 'activity') return value === 'Nocturnal (Night)';
-                        if (trait === 'claws') return value === 'Long (Digging)';
-                        if (trait === 'teeth') return value === 'Long (Hard Foods)';
-                        if (trait === 'social') return value === 'Social';
-                        if (trait === 'tail') return value === 'Long (Jumping)';
-                    }
-                    if (studentState.phase === 2) {
-                        if (trait === 'size') return value === 'Small';
-                        if (trait === 'fur') return value === 'Long';
-                        if (trait === 'color') return value === 'Brown';
-                        if (trait === 'activity') return value === 'Nocturnal (Night)';
-                        if (trait === 'claws') return value === 'Long (Digging)';
-                        if (trait === 'teeth') return value === 'Short (Soft Foods)';
-                        if (trait === 'social') return value === 'Solitary';
-                        if (trait === 'tail') return value === 'Short (Tight Spaces)';
-                    }
-                    return false;
-                });
-
+                isWin = currentScenario.favored.some(trait => studentState.mouse[trait] === 'Small' || 
+                                                                  studentState.mouse[trait] === 'Long' ||
+                                                                  studentState.mouse[trait] === 'Brown' ||
+                                                                  studentState.mouse[trait] === 'Nocturnal');
                 if (isWin) {
                     studentState.wins++;
                     const increase = Math.floor(studentState.population * 0.15);
                     studentState.population += increase;
                     resultBox.className = 'result-box win';
-                    resultBox.innerHTML = `✅ Your traits matched!<br><span class="population-change increase">+${increase} mice</span>`;
+                    resultBox.innerHTML = `✅ Traits matched!<br><span class="population-change increase">+${increase}</span>`;
                 } else {
                     studentState.losses++;
                     const decrease = Math.floor(Math.abs(studentState.population) * 0.10);
                     studentState.population -= decrease;
                     resultBox.className = 'result-box loss';
-                    resultBox.innerHTML = `❌ Your traits didn't match<br><span class="population-change decrease">-${decrease} mice</span>`;
+                    resultBox.innerHTML = `❌ Traits didn't match<br><span class="population-change decrease">-${decrease}</span>`;
                 }
             }
 
+            // Update trait frequency
+            Object.keys(studentState.mouse).forEach(key => {
+                const value = studentState.mouse[key];
+                studentState.traitFrequency[key][value] += isWin ? 1 : -0.5;
+            });
+
+            // Check for new adaptations
+            checkAdaptations();
+
             updateStudentStats();
             await updateStudentPopulation();
+        }
+
+        function checkAdaptations() {
+            adaptations.forEach(adaptation => {
+                if (!studentState.adaptationsUnlocked.includes(adaptation.name)) {
+                    let matches = true;
+                    Object.keys(adaptation.traitCombo).forEach(trait => {
+                        if (studentState.mouse[trait] !== adaptation.traitCombo[trait]) {
+                            matches = false;
+                        }
+                    });
+                    if (matches && Math.random() > 0.7) {
+                        studentState.adaptationsUnlocked.push(adaptation.name);
+                        document.getElementById('adaptationNotice').innerHTML = `
+                            <div class="adaptation-badge">🧬 New Adaptation Unlocked: ${adaptation.name}!</div>
+                        `;
+                    }
+                }
+            });
         }
 
         function updateStudentStats() {
@@ -902,12 +976,11 @@
         }
 
         function studentWaitNextRound() {
-            alert('Waiting for teacher to advance...');
+            alert('Waiting for teacher...');
         }
 
-        // Initialize on load
         window.addEventListener('load', () => {
-            console.log('✅ Game loaded - Firebase REST API ready');
+            console.log('✅ Game loaded');
         });
     </script>
 </body>
