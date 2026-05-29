@@ -576,6 +576,126 @@
             }
         }
 
+        // Trait explanation mapping - explains why each trait value is good or bad
+        const traitExplanations = {
+            'Size': {
+                'Small': 'requires less food and water to survive',
+                'Large': 'requires much more food and water'
+            },
+            'Color': {
+                'Brown': 'provides excellent camouflage in dark areas and soil',
+                'Light Brown': 'stands out in dark environments and is easily spotted'
+            },
+            'Immunity': {
+                'Type A': 'leaves you vulnerable to new parasites and diseases',
+                'Type B': 'provides resistance to most parasite species'
+            },
+            'Fur': {
+                'Short': 'provides poor insulation in cold weather',
+                'Long': 'provides excellent insulation and warmth'
+            },
+            'Claws': {
+                'Short': 'weak digging ability for burrows',
+                'Long': 'powerful digging for fast burrow construction'
+            },
+            'Tail': {
+                'Short': 'poor balance and slow escape speed',
+                'Long': 'better balance and faster escape speeds from predators'
+            },
+            'Teeth': {
+                'Short': 'can only eat soft seeds',
+                'Long': 'can crack hard nuts and seeds for food'
+            },
+            'Activity': {
+                'Diurnal': 'active during day when many predators hunt',
+                'Nocturnal': 'active at night when fewer predators are hunting'
+            },
+            'Social': {
+                'Solitary': 'vulnerable when predators hunt in packs',
+                'Social': 'safer in groups - predators struggle to catch multiple prey'
+            }
+        };
+
+        const scenarioExplanations = {
+            'Spring Rains': 'Water and food are abundant, so all mouse traits are equally successful.',
+            'Mild Predation': 'Few predators around means all mice have a good chance of survival.',
+            'Seed Abundance': 'Plenty of food for all, so no advantage to specialized eating traits.',
+            'Safe Shelters': 'Good shelter everywhere, so digging ability doesn\'t matter.',
+            'Healthy Times': 'No diseases spreading, so immunity type doesn\'t affect survival.',
+            'The Great Drought': 'Water is scarce, so small efficient mice that need less water survive better.',
+            'Predator Invasion': 'New predators hunt using vision and during daytime—camouflage, speed, and nocturnal activity matter most.',
+            'Crop Failure': 'Only hard seeds and nuts remain—you need strong teeth to crack them open.',
+            'Flood Disaster': 'Burrows destroyed by water—mice with strong claws can dig new burrows fastest.',
+            'Disease Outbreak': 'Parasites spread quickly—your immunity type determines who gets sick.',
+            'Extreme Cold': 'Record-breaking winter requires insulation—long fur keeps you warm.',
+            'Seed Failure': 'Trees don\'t produce seeds—only hard nuts on ground—long teeth needed.',
+            'Unpredictable Weather': 'Chaos and rapid changes favor generalists—no specific trait helps.',
+            'Brief Abundance': 'Temporary food surplus doesn\'t favor any specific adaptation.',
+            'New Equilibrium': 'Ecosystem has stabilized—both adapted and unadapted mice can thrive.',
+            'Gradual Recovery': 'Resources return slowly—all mice recover at the same pace.',
+            'Timing Mismatch': 'Predators and food don\'t align well—survival depends on luck.',
+            'Late Frost': 'Cold snap kills new growth but it\'s temporary—all mice adapt quickly.',
+            'Summer Heat': 'Unseasonably warm temperatures affect all mice equally.',
+            'Mild Weather': 'Perfect conditions for all—survival depends on factors other than these traits.'
+        };
+
+        function generateExplanation(won) {
+            const scenario = gameState.currentScenario;
+            let explanation = '';
+            
+            if (!scenario.fav || scenario.fav.length === 0) {
+                // Good times scenario
+                explanation = `<div style="font-size: 13px; color: #333; margin-top: 12px; padding: 12px; background: #f0f8ff; border-radius: 5px; border-left: 4px solid #0066cc;">
+                    <strong>📚 Why all mice thrived:</strong><br>
+                    ${scenarioExplanations[scenario.title] || 'Conditions favored all mice equally.'}</div>`;
+            } else {
+                // Selective pressure scenario
+                const matchedTraits = [];
+                const unmatchedTraits = [];
+                const favorableValues = {
+                    'Size': 'Small', 'Color': 'Brown', 'Activity': 'Nocturnal', 'Tail': 'Long',
+                    'Claws': 'Long', 'Teeth': 'Long', 'Immunity': 'Type B', 'Fur': 'Long', 'Social': 'Social'
+                };
+                
+                scenario.fav.forEach(trait => {
+                    const studentValue = gameState.studentMouse[trait];
+                    const favorableValue = favorableValues[trait];
+                    if (studentValue === favorableValue) {
+                        matchedTraits.push({trait, value: studentValue});
+                    } else {
+                        unmatchedTraits.push({trait, value: studentValue, favorable: favorableValue});
+                    }
+                });
+                
+                if (won) {
+                    explanation = `<div style="font-size: 13px; color: #155724; margin-top: 12px; padding: 12px; background: #d4edda; border-radius: 5px; border-left: 4px solid #28a745;">
+                        <strong>📚 Why you survived:</strong><br>`;
+                    
+                    if (matchedTraits.length > 0) {
+                        matchedTraits.forEach(m => {
+                            explanation += `<strong>${m.trait}:</strong> Your ${m.value} ${traitExplanations[m.trait][m.value]}<br><br>`;
+                        });
+                    }
+                    
+                    explanation += `<strong>Scenario Impact:</strong> ${scenarioExplanations[scenario.title] || 'Your traits matched this environment perfectly.'}</div>`;
+                } else {
+                    explanation = `<div style="font-size: 13px; color: #721c24; margin-top: 12px; padding: 12px; background: #f8d7da; border-radius: 5px; border-left: 4px solid #f5c6cb;">
+                        <strong>📚 Why you struggled:</strong><br>`;
+                    
+                    if (unmatchedTraits.length > 0) {
+                        unmatchedTraits.forEach(u => {
+                            explanation += `<strong>${u.trait}:</strong> Your ${u.value} ${traitExplanations[u.trait][u.value]}<br>`;
+                            explanation += `<span style="color: #555; font-size: 12px;">→ Better would be: ${u.favorable}</span><br><br>`;
+                        });
+                    }
+                    
+                    explanation += `<strong>Scenario Impact:</strong> ${scenarioExplanations[scenario.title] || 'Your traits didn\'t match this environment.'}</div>`;
+                }
+            }
+            
+            return explanation;
+        }
+
         function checkResult() {
             if (!gameState.currentScenario) {
                 alert('No scenario loaded yet');
@@ -594,7 +714,8 @@
                 won = true;
                 change = Math.floor(gameState.population * 0.20);
                 gameState.population += change;
-                document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✨ Good times!<br><span class="pop-change pop-increase">+${change}</span></div>`;
+                const explanation = generateExplanation(true);
+                document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✨ Good times! All mice thrive!<br><span class="pop-change pop-increase">+${change}</span></div>${explanation}`;
             } else {
                 const favorableValues = {
                     'Size': 'Small', 'Color': 'Brown', 'Activity': 'Nocturnal', 'Tail': 'Long',
@@ -609,7 +730,8 @@
                     gameState.wins++;
                     change = Math.floor(gameState.population * 0.15);
                     gameState.population += change;
-                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✅ Traits matched!<br><span class="pop-change pop-increase">+${change}</span></div>`;
+                    const explanation = generateExplanation(true);
+                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✅ Your traits matched!<br><span class="pop-change pop-increase">+${change}</span></div>${explanation}`;
                     // Update trait frequency toward the favorable trait
                     gameState.currentScenario.fav.forEach(trait => {
                         const favorable = favorableValues[trait];
@@ -619,7 +741,8 @@
                     gameState.losses++;
                     change = Math.floor(Math.abs(gameState.population) * 0.10);
                     gameState.population -= change;
-                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-loss">❌ Traits didn't match<br><span class="pop-change pop-decrease">-${change}</span></div>`;
+                    const explanation = generateExplanation(false);
+                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-loss">❌ Your traits didn't match<br><span class="pop-change pop-decrease">-${change}</span></div>${explanation}`;
                 }
             }
 
