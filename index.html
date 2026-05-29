@@ -384,21 +384,24 @@
 
         async function watchStudent() {
             const data = await firebase('GET', `/classes/${gameState.classCode}`);
-            if (data && data.scenario && data.scenario.title !== gameState.lastScenarioTitle) {
-                gameState.lastScenarioTitle = data.scenario.title;
-                gameState.currentScenario = data.scenario;
-                gameState.resultShown = false;
-                const s = data.scenario;
-                const cats = {climate: '🌡️ Climate', predation: '🦅 Predation', environment: '🌍 Environment', disease: '🦠 Disease', 'good-times': '🌟 Good Times'};
-                document.getElementById('scenarioIcon').textContent = s.icon;
-                document.getElementById('scenarioTitle').textContent = s.title;
-                document.getElementById('scenarioDesc').textContent = s.desc;
-                document.getElementById('categoryDisplay').innerHTML = `<div class="category-badge">${cats[s.cat]}</div>`;
-                document.getElementById('resultDisplay').innerHTML = '';
-                document.getElementById('adaptationDisplay').innerHTML = '';
-                const eraNames = ['', 'Era 1: Natural Variation', 'Era 2: The Disruption', 'Era 3: New Equilibrium'];
-                document.getElementById('eraDisplay2').textContent = eraNames[s.era];
-                document.getElementById('roundDisplay2').textContent = `Round ${s.round} / 30`;
+            if (data && data.scenario) {
+                if (data.scenario.title && data.scenario.title !== gameState.lastScenarioTitle) {
+                    gameState.lastScenarioTitle = data.scenario.title;
+                    gameState.currentScenario = data.scenario;
+                    gameState.resultShown = false;
+                    const s = data.scenario;
+                    const cats = {climate: '🌡️ Climate', predation: '🦅 Predation', environment: '🌍 Environment', disease: '🦠 Disease', 'good-times': '🌟 Good Times'};
+                    document.getElementById('scenarioIcon').textContent = s.icon;
+                    document.getElementById('scenarioTitle').textContent = s.title;
+                    document.getElementById('scenarioDesc').textContent = s.desc;
+                    document.getElementById('categoryDisplay').innerHTML = `<div class="category-badge">${cats[s.cat]}</div>`;
+                    document.getElementById('resultDisplay').innerHTML = '';
+                    document.getElementById('adaptationDisplay').innerHTML = '';
+                    const eraNames = ['', 'Era 1: Natural Variation', 'Era 2: The Disruption', 'Era 3: New Equilibrium'];
+                    document.getElementById('eraDisplay2').textContent = eraNames[s.era];
+                    document.getElementById('roundDisplay2').textContent = `Round ${s.round} / 30`;
+                    console.log('Scenario loaded:', s);
+                }
             }
         }
 
@@ -411,6 +414,10 @@
         }
 
         function checkResult() {
+            console.log('=== CHECK RESULT CALLED ===');
+            console.log('Current scenario:', gameState.currentScenario);
+            console.log('Population before:', gameState.population);
+            
             if (!gameState.currentScenario) {
                 alert('No scenario loaded yet. Wait for teacher to send scenario.');
                 return;
@@ -422,29 +429,36 @@
             gameState.resultShown = true;
 
             let won = false;
-            if (gameState.currentScenario.fav.length === 0) {
+            let change = 0;
+            
+            if (!gameState.currentScenario.fav || gameState.currentScenario.fav.length === 0) {
                 won = true;
-                const inc = Math.floor(gameState.population * 0.20);
-                gameState.population += inc;
-                document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✨ Good times!<br><span class="pop-change pop-increase">+${inc}</span></div>`;
+                change = Math.floor(gameState.population * 0.20);
+                gameState.population += change;
+                console.log('Good times! Change:', change, 'New pop:', gameState.population);
+                document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✨ Good times!<br><span class="pop-change pop-increase">+${change}</span></div>`;
             } else {
                 won = gameState.currentScenario.fav.some(trait => {
                     const val = gameState.studentMouse[trait];
+                    console.log('Checking trait:', trait, '=', val);
                     return val === 'Small' || val === 'Long' || val === 'Brown' || val === 'Nocturnal';
                 });
                 if (won) {
                     gameState.wins++;
-                    const inc = Math.floor(gameState.population * 0.15);
-                    gameState.population += inc;
-                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✅ Traits matched!<br><span class="pop-change pop-increase">+${inc}</span></div>`;
+                    change = Math.floor(gameState.population * 0.15);
+                    gameState.population += change;
+                    console.log('WIN! Change:', change, 'New pop:', gameState.population);
+                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✅ Traits matched!<br><span class="pop-change pop-increase">+${change}</span></div>`;
                 } else {
                     gameState.losses++;
-                    const dec = Math.floor(Math.abs(gameState.population) * 0.10);
-                    gameState.population -= dec;
-                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-loss">❌ Traits didn't match<br><span class="pop-change pop-decrease">-${dec}</span></div>`;
+                    change = Math.floor(Math.abs(gameState.population) * 0.10);
+                    gameState.population -= change;
+                    console.log('LOSS! Change:', change, 'New pop:', gameState.population);
+                    document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-loss">❌ Traits didn't match<br><span class="pop-change pop-decrease">-${change}</span></div>`;
                 }
             }
 
+            console.log('Final population:', gameState.population);
             checkAdaptations();
             updateStudentStats();
         }
