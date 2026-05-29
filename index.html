@@ -283,7 +283,7 @@
                     btn.textContent = opt;
                     btn.onclick = () => {
                         gameState.studentMouse[trait.name] = opt;
-                        document.querySelectorAll('.trait-btn').forEach(b => b.classList.remove('selected'));
+                        div.querySelectorAll('.trait-btn').forEach(b => b.classList.remove('selected'));
                         btn.classList.add('selected');
                     };
                     div.querySelector('.trait-options').appendChild(btn);
