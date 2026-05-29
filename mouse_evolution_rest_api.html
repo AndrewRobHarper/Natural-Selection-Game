@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mouse Evolution - Classroom Edition</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 10px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .container {
+            max-width: 500px;
+            width: 100%;
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px 20px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 5px;
+        }
+
+        .header p {
+            font-size: 14px;
+            opacity: 0.9;
+        }
+
+        .screen {
+            display: none;
+            padding: 30px 20px;
+            min-height: 400px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .screen.active {
+            display: block;
+            animation: fadeIn 0.3s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            margin-top: 20px;
+        }
+
+        .btn-secondary {
+            padding: 12px 20px;
+            background: #6c757d;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            margin: 10px 5px 10px 0;
+        }
+
+        .btn-random {
+            padding: 15px;
+            background: #ff6b6b;
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-weight: bold;
+            cursor: pointer;
+            width: 100%;
+            font-size: 16px;
+            margin: 10px 0;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            font-size: 14px;
+            margin-bottom: 10px;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .class-code-display {
+            background: #e7f3ff;
+            border: 2px solid #667eea;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+        }
+
+        .class-code-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+            margin: 10px 0;
+            font-family: monospace;
+        }
+
+        .leaderboard {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+
+        .leaderboard-title {
+            font-weight: bold;
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+
+        .leaderboard-entry {
+            display: flex;
+            justify-content: space-between;
+            padding: 12px;
+            background: white;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            border-left: 4px solid #667eea;
+        }
+
+        .leaderboard-name {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .leaderboard-pop {
+            font-weight: bold;
+            color: #667eea;
+            font-size: 16px;
+        }
+
+        .scenario-box {
+            background: #fff3cd;
+            border-left: 4px solid #ffc107;
+            padding: 20px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+
+        .scenario-title {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #333;
+            font-size: 18px;
+        }
+
+        .scenario-text {
+            font-size: 14px;
+            line-height: 1.6;
+            color: #555;
+        }
+
+        .stats-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 15px;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-weight: 600;
+            color: #333;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .population-bar {
+            width: 100%;
+            height: 30px;
+            background: #ddd;
+            border-radius: 15px;
+            overflow: hidden;
+            margin-top: 10px;
+        }
+
+        .population-fill {
+            height: 100%;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 12px;
+        }
+
+        .result-box {
+            border-radius: 10px;
+            padding: 20px;
+            margin-top: 20px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 18px;
+        }
+
+        .result-box.win {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .result-box.loss {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .population-change {
+            font-size: 20px;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .increase {
+            color: #28a745;
+        }
+
+        .decrease {
+            color: #dc3545;
+        }
+
+        .trait-section {
+            margin-bottom: 25px;
+        }
+
+        .trait-label {
+            font-weight: bold;
+            font-size: 16px;
+            margin-bottom: 12px;
+            color: #333;
+        }
+
+        .trait-options {
+            display: flex;
+            gap: 10px;
+        }
+
+        .trait-btn {
+            flex: 1;
+            padding: 12px;
+            border: 2px solid #ddd;
+            border-radius: 10px;
+            background: white;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .trait-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+
+        .trait-btn.selected {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #667eea;
+        }
+
+        .phase-indicator {
+            background: #667eea;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            margin-top: 20px;
+            flex-wrap: wrap;
+        }
+
+        .round-info {
+            text-align: center;
+            font-size: 14px;
+            color: #666;
+            margin: 10px 0;
+        }
+
+        .status-message {
+            padding: 15px;
+            border-radius: 10px;
+            margin: 15px 0;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        .status-success {
+            background: #d4edda;
+            color: #155724;
+            border: 2px solid #28a745;
+        }
+
+        .status-error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 2px solid #f5c6cb;
+        }
+
+        .loading {
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🐭 Mouse Evolution</h1>
+            <p>Classroom Edition (REST API)</p>
+        </div>
+
+        <!-- MODE SELECTION SCREEN -->
+        <div class="screen active" id="modeScreen">
+            <div style="margin-bottom: 30px;">
+                <p style="color: #28a745; font-size: 14px; margin-bottom: 20px;">
+                    ✅ Ready to Play
+                </p>
+            </div>
+
+            <p style="font-size: 16px; color: #555; margin-bottom: 20px;">Choose your role:</p>
+            <button class="btn-primary" onclick="goToMode('teacher')" style="background: #ff6b6b; margin-bottom: 10px;">🎓 I'm the Teacher</button>
+            <button class="btn-primary" onclick="goToMode('student')">👤 I'm a Student</button>
+        </div>
+
+        <!-- TEACHER DASHBOARD -->
+        <div class="screen" id="teacherDashboard">
+            <h2 style="color: #333; margin-bottom: 15px;">Teacher Control Panel</h2>
+            
+            <div class="class-code-display">
+                <p>Class Code:</p>
+                <div class="class-code-value" id="classCodeDisplay">LOADING</div>
+                <p style="font-size: 12px; margin-top: 10px;">Share this code with students</p>
+            </div>
+
+            <div style="margin: 20px 0;">
+                <label style="font-weight: bold; color: #333; display: block; margin-bottom: 10px;">Add Student Name:</label>
+                <div style="display: flex; gap: 10px;">
+                    <input type="text" class="input-field" id="studentNameInput" placeholder="Student name" style="margin: 0; flex: 1;">
+                    <button class="btn-secondary" onclick="addStudent()" style="margin: 0;">Add</button>
+                </div>
+            </div>
+
+            <div class="leaderboard" id="teacherLeaderboard">
+                <div class="leaderboard-title">📊 Current Populations</div>
+                <div id="leaderboardContent" style="color: #666; text-align: center;">Loading students...</div>
+            </div>
+
+            <div id="scenarioDisplay"></div>
+
+            <button class="btn-random" onclick="selectRandomScenario()">🎲 Select Random Scenario</button>
+            
+            <button class="btn-secondary" style="width: 100%;" onclick="advanceRound()">Next Round ➡️</button>
+            <button class="btn-secondary" style="width: 100%; background: #6c757d;" onclick="logoutTeacher()">Logout</button>
+        </div>
+
+        <!-- STUDENT TRAIT SELECTION -->
+        <div class="screen" id="studentTraitScreen">
+            <h2 style="margin-bottom: 15px; color: #333;">Create Your Mouse</h2>
+            <p style="color: #666; margin-bottom: 20px; font-size: 14px;">Enter your name and class code:</p>
+            
+            <input type="text" class="input-field" id="studentName" placeholder="Your name" maxlength="20">
+            <input type="text" class="input-field" id="classCode" placeholder="Class code (from teacher)">
+            
+            <p style="color: #333; font-weight: bold; margin-top: 20px; margin-bottom: 15px;">Select your mouse traits:</p>
+            <div id="traitContainer"></div>
+            <button class="btn-primary" onclick="confirmStudentMouse()">Start Game</button>
+        </div>
+
+        <!-- STUDENT GAME SCREEN -->
+        <div class="screen" id="studentGameScreen">
+            <div class="phase-indicator" id="studentPhaseIndicator">Phase 1: Natural Variability</div>
+            
+            <div class="round-info">
+                <strong id="studentRoundDisplay">Round 1 / 16</strong>
+            </div>
+
+            <div class="stats-box">
+                <div class="stat-item">
+                    <span class="stat-label">Population:</span>
+                    <span class="stat-value" id="studentPopValue">100</span>
+                </div>
+                <div class="population-bar">
+                    <div class="population-fill" id="studentPopBar" style="width: 100%;">100</div>
+                </div>
+            </div>
+
+            <div class="stats-box">
+                <div class="stat-item">
+                    <span class="stat-label">Wins:</span>
+                    <span class="stat-value" id="studentWinsValue">0</span>
+                </div>
+                <div class="stat-item">
+                    <span class="stat-label">Losses:</span>
+                    <span class="stat-value" id="studentLossesValue">0</span>
+                </div>
+            </div>
+
+            <div class="scenario-box" id="studentScenarioBox">
+                <div class="scenario-title" id="studentScenarioTitle">Waiting for teacher...</div>
+                <div class="scenario-text" id="studentScenarioText">Your teacher will send the first scenario soon.</div>
+            </div>
+
+            <div class="result-box" id="studentResultBox" style="display: none;"></div>
+
+            <div class="controls">
+                <button class="btn-secondary" onclick="studentShowResult()" style="flex: 1;">Check Result</button>
+                <button class="btn-secondary" onclick="studentWaitNextRound()" style="flex: 1;">Ready for Next</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Firebase REST API Configuration
+        const FIREBASE_URL = 'https://naturalselection-8d756-default-rtdb.firebaseio.com';
+
+        // Game state
+        let gameMode = null;
+        let classCode = null;
+        let currentRound = 1;
+        let currentPhase = 1;
+        let currentScenario = null;
+        let studentState = {
+            name: '',
+            mouse: {},
+            population: 100,
+            round: 1,
+            wins: 0,
+            losses: 0,
+            phase: 1,
+            resultShown: false
+        };
+
+        // Trait definitions
+        const traits = [
+            { name: 'Size', options: ['Large', 'Small'], key: 'size' },
+            { name: 'Color', options: ['Brown', 'Light Brown'], key: 'color' },
+            { name: 'Immunity', options: ['Type A', 'Type B'], key: 'immunity' },
+            { name: 'Fur Length', options: ['Short', 'Long'], key: 'fur' },
+            { name: 'Claws', options: ['Short (Climbing)', 'Long (Digging)'], key: 'claws' },
+            { name: 'Tail', options: ['Short (Tight Spaces)', 'Long (Jumping)'], key: 'tail' },
+            { name: 'Teeth', options: ['Short (Soft Foods)', 'Long (Hard Foods)'], key: 'teeth' },
+            { name: 'Activity', options: ['Diurnal (Day)', 'Nocturnal (Night)'], key: 'activity' },
+            { name: 'Social', options: ['Solitary', 'Social'], key: 'social' }
+        ];
+
+        // Base scenarios
+        const basePhase1Scenarios = [
+            { title: 'The Spring Drought', description: 'Unseasonably dry spring. Water sources dry up early.', category: 'climate', icon: '💧', favored: ['size', 'fur'] },
+            { title: 'The Predator Boom', description: 'Hawk and coyote populations explode.', category: 'predation', icon: '🦅', favored: ['color', 'activity'] },
+            { title: 'The Mast Year', description: 'Trees produce massive seed crops. Food is abundant.', category: 'good-times', icon: '🌟', favored: [] },
+            { title: 'The Late Frost', description: 'Unexpected frost kills emerging plants.', category: 'climate', icon: '❄️', favored: ['social', 'claws'] },
+            { title: 'The Parasite Outbreak', description: 'Warm, wet conditions spread parasites.', category: 'disease', icon: '🦠', favored: ['immunity', 'fur'] },
+            { title: 'The Flood', description: 'Heavy rains flood burrows.', category: 'environment', icon: '🌊', favored: ['claws', 'tail'] },
+            { title: 'The Summer Heat', description: 'Unusual heat wave. Temperatures soar.', category: 'climate', icon: '🔥', favored: ['fur', 'size'] },
+            { title: 'The Forest Fire', description: 'Wildfire sweeps through, burning habitat.', category: 'environment', icon: '🔥', favored: ['color', 'claws'] },
+            { title: 'The Safe Season', description: 'Predators migrate away. Food is plentiful.', category: 'good-times', icon: '🌟', favored: [] }
+        ];
+
+        const basePhase2Scenarios = [
+            { title: 'The Extreme Cold', description: 'Record-breaking winter.', category: 'climate', icon: '❄️', favored: ['fur', 'size'] },
+            { title: 'The Unpredictable Weather', description: 'Seasons lose meaning. Warm days followed by hard freezes.', category: 'climate', icon: '⛈️', favored: ['immunity', 'social'] },
+            { title: 'The Invasive Predator', description: 'A non-native predator arrives.', category: 'predation', icon: '🦅', favored: ['activity', 'tail'] },
+            { title: 'The Seed Failure', description: 'Trees don\'t produce seeds.', category: 'climate', icon: '🌾', favored: ['size', 'teeth'] },
+            { title: 'The Disease Surge', description: 'Diseases persist year-round.', category: 'disease', icon: '🦠', favored: ['immunity', 'social'] },
+            { title: 'The Extreme Drought', description: 'Prolonged drought.', category: 'climate', icon: '💧', favored: ['size', 'claws'] },
+            { title: 'The Timing Mismatch', description: 'Insects emerge early but birds migrate late.', category: 'environment', icon: '🔄', favored: ['activity', 'color'] },
+            { title: 'The Extreme Storm', description: 'Intense storms become common.', category: 'environment', icon: '🌪️', favored: ['claws', 'fur'] },
+            { title: 'The Abundant Winter', description: 'Winter of plenty.', category: 'good-times', icon: '🌟', favored: [] }
+        ];
+
+        // Wheel scenarios (20 sections each)
+        const phase1Scenarios = [
+            basePhase1Scenarios[0], basePhase1Scenarios[0], basePhase1Scenarios[0], basePhase1Scenarios[0],
+            basePhase1Scenarios[1], basePhase1Scenarios[1], basePhase1Scenarios[1], basePhase1Scenarios[1],
+            basePhase1Scenarios[3], basePhase1Scenarios[3],
+            basePhase1Scenarios[6], basePhase1Scenarios[6],
+            basePhase1Scenarios[5], basePhase1Scenarios[5],
+            basePhase1Scenarios[7], basePhase1Scenarios[7],
+            basePhase1Scenarios[4],
+            basePhase1Scenarios[2],
+            basePhase1Scenarios[8], basePhase1Scenarios[8]
+        ];
+
+        const phase2Scenarios = [
+            basePhase2Scenarios[0], basePhase2Scenarios[0], basePhase2Scenarios[0], basePhase2Scenarios[0],
+            basePhase2Scenarios[1], basePhase2Scenarios[1],
+            basePhase2Scenarios[5], basePhase2Scenarios[5],
+            basePhase2Scenarios[3], basePhase2Scenarios[3],
+            basePhase2Scenarios[2], basePhase2Scenarios[2], basePhase2Scenarios[2], basePhase2Scenarios[2],
+            basePhase2Scenarios[6], basePhase2Scenarios[6],
+            basePhase2Scenarios[7], basePhase2Scenarios[7],
+            basePhase2Scenarios[4],
+            basePhase2Scenarios[8]
+        ];
+
+        // Firebase REST API helper functions
+        async function firebaseGet(path) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}${path}.json`);
+                return await response.json();
+            } catch (error) {
+                console.error('Firebase GET error:', error);
+                return null;
+            }
+        }
+
+        async function firebaseSet(path, data) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}${path}.json`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Firebase SET error:', error);
+                return null;
+            }
+        }
+
+        async function firebaseUpdate(path, data) {
+            try {
+                const response = await fetch(`${FIREBASE_URL}${path}.json`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(data)
+                });
+                return await response.json();
+            } catch (error) {
+                console.error('Firebase UPDATE error:', error);
+                return null;
+            }
+        }
+
+        // UI Functions
+        function goToScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+            document.getElementById(screenId).classList.add('active');
+        }
+
+        function goToMode(mode) {
+            gameMode = mode;
+            if (mode === 'teacher') {
+                generateClassCode();
+                setupTeacherDashboard();
+                goToScreen('teacherDashboard');
+            } else {
+                goToScreen('studentTraitScreen');
+                initializeTraits();
+            }
+        }
+
+        function generateClassCode() {
+            const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789';
+            classCode = '';
+            for (let i = 0; i < 6; i++) {
+                classCode += chars.charAt(Math.floor(Math.random() * chars.length));
+            }
+            document.getElementById('classCodeDisplay').textContent = classCode;
+        }
+
+        async function setupTeacherDashboard() {
+            // Load existing students
+            const students = await firebaseGet(`/classes/${classCode}/students`);
+            if (students) {
+                updateTeacherLeaderboard(students);
+            }
+            
+            // Refresh students every 2 seconds
+            setInterval(async () => {
+                const students = await firebaseGet(`/classes/${classCode}/students`);
+                if (students) {
+                    updateTeacherLeaderboard(students);
+                }
+            }, 2000);
+        }
+
+        function updateTeacherLeaderboard(studentsObj) {
+            const students = Object.values(studentsObj || {}).map(s => ({
+                name: s.name,
+                population: s.population || 100
+            }));
+            
+            const sorted = students.sort((a, b) => b.population - a.population);
+            const html = sorted.map(s => `
+                <div class="leaderboard-entry">
+                    <span class="leaderboard-name">${s.name}</span>
+                    <span class="leaderboard-pop">${s.population}</span>
+                </div>
+            `).join('');
+            document.getElementById('leaderboardContent').innerHTML = html || '<p style="color: #666;">No students yet</p>';
+        }
+
+        async function addStudent() {
+            const name = document.getElementById('studentNameInput').value.trim();
+            if (!name) {
+                alert('Enter a student name');
+                return;
+            }
+            
+            await firebaseSet(`/classes/${classCode}/students/${name}`, {
+                name: name,
+                population: 100
+            });
+            
+            document.getElementById('studentNameInput').value = '';
+        }
+
+        async function selectRandomScenario() {
+            const scenarios = currentPhase === 1 ? phase1Scenarios : phase2Scenarios;
+            currentScenario = scenarios[Math.floor(Math.random() * scenarios.length)];
+            
+            const categoryNames = {
+                'environment': '🌍 Environment',
+                'predation': '🦅 Predation',
+                'disease': '🦠 Disease',
+                'climate': '🌡️ Climate',
+                'good-times': '🌟 Good Times'
+            };
+
+            const display = document.getElementById('scenarioDisplay');
+            display.innerHTML = `
+                <div style="margin: 20px 0;">
+                    <div style="text-align: center; margin-bottom: 15px;">
+                        <div style="font-size: 24px; margin-bottom: 10px;">${currentScenario.icon}</div>
+                        <div style="background: #e7f3ff; color: #0c5aa0; padding: 8px 15px; border-radius: 20px; display: inline-block; font-weight: bold; font-size: 14px;">
+                            ${categoryNames[currentScenario.category]}
+                        </div>
+                    </div>
+                </div>
+                <div class="scenario-box">
+                    <div class="scenario-title">${currentScenario.title}</div>
+                    <div class="scenario-text">${currentScenario.description}</div>
+                </div>
+            `;
+
+            await firebaseSet(`/classes/${classCode}/currentScenario`, {
+                title: currentScenario.title,
+                description: currentScenario.description,
+                category: currentScenario.category,
+                icon: currentScenario.icon,
+                favored: currentScenario.favored,
+                round: currentRound,
+                phase: currentPhase
+            });
+        }
+
+        async function advanceRound() {
+            if (!currentScenario) {
+                alert('Select a scenario first!');
+                return;
+            }
+
+            currentRound++;
+            if (currentRound === 9 && currentPhase === 1) {
+                currentPhase = 2;
+                alert('Climate Shift! Phase 2 begins.');
+            } else if (currentRound === 17) {
+                alert('Game Over!');
+                currentRound = 1;
+                currentPhase = 1;
+            }
+
+            await firebaseUpdate(`/classes/${classCode}`, {
+                currentRound: currentRound,
+                currentPhase: currentPhase
+            });
+            
+            selectRandomScenario();
+        }
+
+        async function logoutTeacher() {
+            classCode = null;
+            gameMode = null;
+            currentRound = 1;
+            currentPhase = 1;
+            goToScreen('modeScreen');
+        }
+
+        function initializeTraits() {
+            const container = document.getElementById('traitContainer');
+            container.innerHTML = '';
+            
+            traits.forEach(trait => {
+                const section = document.createElement('div');
+                section.className = 'trait-section';
+                section.innerHTML = `<div class="trait-label">${trait.name}</div><div class="trait-options">`;
+                
+                trait.options.forEach(option => {
+                    const btn = document.createElement('button');
+                    btn.className = 'trait-btn';
+                    btn.textContent = option;
+                    btn.onclick = () => selectStudentTrait(trait.key, option);
+                    section.querySelector('.trait-options').appendChild(btn);
+                });
+                
+                container.appendChild(section);
+            });
+        }
+
+        function selectStudentTrait(key, value) {
+            studentState.mouse[key] = value;
+            
+            document.querySelectorAll('.trait-btn').forEach(btn => {
+                const parentKey = traits.find(t => t.name === btn.parentElement.parentElement.querySelector('.trait-label').textContent)?.key;
+                if (parentKey === key && btn.textContent === value) {
+                    btn.classList.add('selected');
+                } else if (parentKey === key) {
+                    btn.classList.remove('selected');
+                }
+            });
+        }
+
+        async function confirmStudentMouse() {
+            const name = document.getElementById('studentName').value.trim();
+            const code = document.getElementById('classCode').value.trim().toUpperCase();
+            
+            if (!name || !code) {
+                alert('Enter your name and class code');
+                return;
+            }
+            if (Object.keys(studentState.mouse).length < traits.length) {
+                alert('Select all traits');
+                return;
+            }
+
+            studentState.name = name;
+            classCode = code;
+
+            await firebaseSet(`/classes/${classCode}/students/${name}`, {
+                name: name,
+                population: 100,
+                wins: 0,
+                losses: 0
+            });
+
+            goToScreen('studentGameScreen');
+            watchForScenario();
+        }
+
+        function watchForScenario() {
+            setInterval(async () => {
+                const scenario = await firebaseGet(`/classes/${classCode}/currentScenario`);
+                if (scenario) {
+                    currentScenario = scenario;
+                    studentState.phase = scenario.phase;
+                    document.getElementById('studentScenarioTitle').textContent = scenario.title;
+                    document.getElementById('studentScenarioText').textContent = scenario.description;
+                    document.getElementById('studentResultBox').style.display = 'none';
+                    studentState.resultShown = false;
+                }
+            }, 1000);
+        }
+
+        async function studentShowResult() {
+            if (studentState.resultShown) return;
+            studentState.resultShown = true;
+
+            const resultBox = document.getElementById('studentResultBox');
+            resultBox.style.display = 'block';
+
+            if (currentScenario.category === 'good-times') {
+                studentState.wins++;
+                const increase = Math.floor(studentState.population * 0.20);
+                studentState.population += increase;
+                resultBox.className = 'result-box win';
+                resultBox.innerHTML = `✨ Good Times!<br><span class="population-change increase">+${increase} mice</span>`;
+            } else {
+                let isWin = currentScenario.favored.some(trait => {
+                    const value = studentState.mouse[trait];
+                    if (studentState.phase === 1) {
+                        if (trait === 'size') return value === 'Small';
+                        if (trait === 'fur') return value === 'Long';
+                        if (trait === 'color') return value === 'Brown';
+                        if (trait === 'activity') return value === 'Nocturnal (Night)';
+                        if (trait === 'claws') return value === 'Long (Digging)';
+                        if (trait === 'teeth') return value === 'Long (Hard Foods)';
+                        if (trait === 'social') return value === 'Social';
+                        if (trait === 'tail') return value === 'Long (Jumping)';
+                    }
+                    if (studentState.phase === 2) {
+                        if (trait === 'size') return value === 'Small';
+                        if (trait === 'fur') return value === 'Long';
+                        if (trait === 'color') return value === 'Brown';
+                        if (trait === 'activity') return value === 'Nocturnal (Night)';
+                        if (trait === 'claws') return value === 'Long (Digging)';
+                        if (trait === 'teeth') return value === 'Short (Soft Foods)';
+                        if (trait === 'social') return value === 'Solitary';
+                        if (trait === 'tail') return value === 'Short (Tight Spaces)';
+                    }
+                    return false;
+                });
+
+                if (isWin) {
+                    studentState.wins++;
+                    const increase = Math.floor(studentState.population * 0.15);
+                    studentState.population += increase;
+                    resultBox.className = 'result-box win';
+                    resultBox.innerHTML = `✅ Your traits matched!<br><span class="population-change increase">+${increase} mice</span>`;
+                } else {
+                    studentState.losses++;
+                    const decrease = Math.floor(Math.abs(studentState.population) * 0.10);
+                    studentState.population -= decrease;
+                    resultBox.className = 'result-box loss';
+                    resultBox.innerHTML = `❌ Your traits didn't match<br><span class="population-change decrease">-${decrease} mice</span>`;
+                }
+            }
+
+            updateStudentStats();
+            await updateStudentPopulation();
+        }
+
+        function updateStudentStats() {
+            document.getElementById('studentPopValue').textContent = studentState.population;
+            const bar = document.getElementById('studentPopBar');
+            bar.style.width = Math.max(0, Math.min(100, (studentState.population / 100) * 100)) + '%';
+            bar.textContent = studentState.population;
+            document.getElementById('studentWinsValue').textContent = studentState.wins;
+            document.getElementById('studentLossesValue').textContent = studentState.losses;
+        }
+
+        async function updateStudentPopulation() {
+            await firebaseUpdate(`/classes/${classCode}/students/${studentState.name}`, {
+                population: studentState.population,
+                wins: studentState.wins,
+                losses: studentState.losses
+            });
+        }
+
+        function studentWaitNextRound() {
+            alert('Waiting for teacher to advance...');
+        }
+
+        // Initialize on load
+        window.addEventListener('load', () => {
+            console.log('✅ Game loaded - Firebase REST API ready');
+        });
+    </script>
+</body>
+</html>
