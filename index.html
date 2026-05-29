@@ -7,16 +7,14 @@
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; }
         body { font-family: Arial, sans-serif; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 10px; }
-        .container { max-width: 650px; width: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
+        .container { max-width: 700px; width: 100%; background: white; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); overflow: hidden; }
         .header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px 20px; text-align: center; }
         .header h1 { font-size: 28px; margin-bottom: 5px; }
-        .header p { font-size: 13px; opacity: 0.9; }
         .screen { display: none; padding: 30px 20px; min-height: 400px; max-height: 90vh; overflow-y: auto; }
         .screen.active { display: block; }
         .btn { width: 100%; padding: 15px; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; border: none; border-radius: 10px; font-size: 16px; font-weight: bold; cursor: pointer; margin-top: 15px; }
         .btn:hover { opacity: 0.9; }
         .btn-secondary { background: #6c757d; }
-        .btn-red { background: #ff6b6b; }
         .input-field { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 10px; font-size: 14px; margin-bottom: 10px; }
         .input-field:focus { outline: none; border-color: #667eea; }
         .class-code { background: #e7f3ff; border: 2px solid #667eea; padding: 20px; border-radius: 10px; text-align: center; margin: 20px 0; }
@@ -40,7 +38,8 @@
         .trait-btn { flex: 1; padding: 10px; border: 2px solid #ddd; border-radius: 8px; background: white; cursor: pointer; font-weight: bold; font-size: 13px; }
         .trait-btn.selected { background: #667eea; color: white; border-color: #667eea; }
         .wheel-container { text-align: center; margin: 20px 0; }
-        .wheel { width: 250px; height: 250px; margin: 0 auto 20px; border: 4px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 60px; background: linear-gradient(135deg, #ffd700 0%, #ffed4e 100%); position: relative; }
+        .wheel { width: 300px; height: 300px; margin: 0 auto 20px; border: 4px solid #333; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 48px; background: #fff; position: relative; overflow: hidden; }
+        .wheel-section { position: absolute; width: 150px; height: 150px; transform-origin: 150px 150px; display: flex; align-items: center; justify-content: center; font-size: 18px; font-weight: bold; color: white; text-shadow: 1px 1px 2px rgba(0,0,0,0.3); clip-path: polygon(50% 50%, 100% 0, 100% 100%); }
         .wheel.spinning { animation: spin 2s ease-out; }
         @keyframes spin { from { transform: rotate(0deg); } to { transform: rotate(1800deg); } }
         .wheel-pointer { position: absolute; top: -20px; left: 50%; transform: translateX(-50%); width: 0; height: 0; border-left: 15px solid transparent; border-right: 15px solid transparent; border-top: 25px solid #333; z-index: 10; }
@@ -59,6 +58,17 @@
         p { color: #555; margin-bottom: 15px; }
         .flex-row { display: flex; gap: 10px; }
         .flex-row button { flex: 1; }
+        .end-game-box { background: #e8f5e9; border: 3px solid #4caf50; padding: 30px; border-radius: 15px; text-align: center; }
+        .species-name { font-size: 24px; font-weight: bold; color: #2e7d32; margin: 20px 0; font-style: italic; }
+        .trait-freq { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 20px 0; }
+        .trait-item { background: white; padding: 15px; border-radius: 8px; border-left: 4px solid #667eea; }
+        .trait-item-label { font-weight: bold; color: #333; margin-bottom: 8px; }
+        .trait-item-freq { font-size: 18px; color: #667eea; font-weight: bold; }
+        .color-climate { background: #ff9800; }
+        .color-predation { background: #f44336; }
+        .color-environment { background: #009688; }
+        .color-disease { background: #9c27b0; }
+        .color-good-times { background: #4caf50; }
     </style>
 </head>
 <body>
@@ -71,7 +81,7 @@
         <!-- MODE SCREEN -->
         <div class="screen active" id="modeScreen">
             <p style="font-size: 18px; text-align: center; margin: 40px 0; font-weight: bold;">Choose your role:</p>
-            <button class="btn btn-red" onclick="goTeacher()">🎓 I'm the Teacher</button>
+            <button class="btn" style="background: #ff6b6b;" onclick="goTeacher()">🎓 I'm the Teacher</button>
             <button class="btn" onclick="goStudent()">👤 I'm a Student</button>
         </div>
 
@@ -99,8 +109,8 @@
             </div>
 
             <div class="wheel-container">
-                <div class="wheel" id="wheel"><div class="wheel-pointer"></div>🎲</div>
-                <button class="spin-btn" onclick="spinWheel()">🎲 Spin Scenario Wheel</button>
+                <div class="wheel" id="wheel"><div class="wheel-pointer"></div></div>
+                <button class="spin-btn" onclick="spinWheel()">🎲 Spin Wheel</button>
             </div>
 
             <div id="scenarioDisplay"></div>
@@ -167,24 +177,34 @@
                 <button class="btn btn-secondary" onclick="readyNext()">Ready for Next</button>
             </div>
         </div>
+
+        <!-- END GAME SCREEN -->
+        <div class="screen" id="endGameScreen">
+            <div class="end-game-box">
+                <h2>🏆 Game Over!</h2>
+                <p style="margin: 20px 0; font-size: 16px;">Your Species:</p>
+                <div class="species-name" id="speciesName"></div>
+                <div id="speciationMessage"></div>
+                
+                <h3 style="color: #333; margin-top: 30px; margin-bottom: 20px;">Final Trait Distribution</h3>
+                <div class="trait-freq" id="traitFreqDisplay"></div>
+
+                <h3 style="color: #333; margin-top: 30px; margin-bottom: 20px;">Final Leaderboard</h3>
+                <div class="leaderboard" id="finalLeaderboard"></div>
+
+                <button class="btn" onclick="newGame()" style="margin-top: 30px;">Play Again</button>
+            </div>
+        </div>
     </div>
 
     <script>
         const FIREBASE_URL = 'https://naturalselection-8d756-default-rtdb.firebaseio.com';
+        let teacherInterval = null;
 
         let gameState = {
-            mode: null,
-            classCode: null,
-            round: 1,
-            era: 1,
-            currentScenario: null,
-            lastScenarioTitle: null,
-            studentName: '',
-            studentMouse: {},
-            population: 100,
-            wins: 0,
-            losses: 0,
-            resultShown: false
+            mode: null, classCode: null, round: 1, era: 1, currentScenario: null, lastScenarioTitle: null,
+            studentName: '', studentMouse: {}, population: 100, wins: 0, losses: 0, resultShown: false,
+            traitFrequency: {}, adaptationsUnlocked: []
         };
 
         const traits = [
@@ -218,27 +238,87 @@
             {name: 'Evasion Expert', traits: {Tail: 'Long', Size: 'Small'}}
         ];
 
+        // 20-scenario arrays with realistic distributions
         const era1Scenarios = [
-            {title: 'Spring Rains', desc: 'Abundant water and food everywhere', cat: 'climate', icon: '💧', fav: []},
-            {title: 'Mild Predation', desc: 'Few predators in the area', cat: 'predation', icon: '🦅', fav: []},
-            {title: 'Seed Abundance', desc: 'Trees producing lots of seeds', cat: 'good-times', icon: '🌟', fav: []},
-            {title: 'Safe Shelters', desc: 'Good burrows and hiding spots everywhere', cat: 'environment', icon: '🏠', fav: []},
+            // Climate 40% (8 scenarios)
+            {title: 'Spring Rains', desc: 'Abundant water everywhere', cat: 'climate', icon: '💧', fav: []},
+            {title: 'Spring Rains', desc: 'Abundant water everywhere', cat: 'climate', icon: '💧', fav: []},
+            {title: 'Late Frost', desc: 'Unexpected cold kills new growth', cat: 'climate', icon: '❄️', fav: []},
+            {title: 'Late Frost', desc: 'Unexpected cold kills new growth', cat: 'climate', icon: '❄️', fav: []},
+            {title: 'Summer Heat', desc: 'Unseasonably warm temperatures', cat: 'climate', icon: '🌞', fav: []},
+            {title: 'Summer Heat', desc: 'Unseasonably warm temperatures', cat: 'climate', icon: '🌞', fav: []},
+            {title: 'Mild Weather', desc: 'Perfect temperatures all season', cat: 'climate', icon: '🌤️', fav: []},
+            {title: 'Mild Weather', desc: 'Perfect temperatures all season', cat: 'climate', icon: '🌤️', fav: []},
+            // Predation 20% (4 scenarios)
+            {title: 'Mild Predation', desc: 'Few predators around', cat: 'predation', icon: '🦅', fav: []},
+            {title: 'Mild Predation', desc: 'Few predators around', cat: 'predation', icon: '🦅', fav: []},
+            {title: 'Mild Predation', desc: 'Few predators around', cat: 'predation', icon: '🦅', fav: []},
+            {title: 'Mild Predation', desc: 'Few predators around', cat: 'predation', icon: '🦅', fav: []},
+            // Environment 20% (4 scenarios)
+            {title: 'Safe Burrows', desc: 'Good shelter everywhere', cat: 'environment', icon: '🏠', fav: []},
+            {title: 'Safe Burrows', desc: 'Good shelter everywhere', cat: 'environment', icon: '🏠', fav: []},
+            {title: 'Safe Burrows', desc: 'Good shelter everywhere', cat: 'environment', icon: '🏠', fav: []},
+            {title: 'Safe Burrows', desc: 'Good shelter everywhere', cat: 'environment', icon: '🏠', fav: []},
+            // Good Times 15% (3 scenarios)
+            {title: 'Seed Abundance', desc: 'Abundant food for all', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'Seed Abundance', desc: 'Abundant food for all', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'Seed Abundance', desc: 'Abundant food for all', cat: 'good-times', icon: '🌟', fav: []},
+            // Disease 5% (1 scenario)
             {title: 'Healthy Times', desc: 'No diseases spreading', cat: 'disease', icon: '💚', fav: []}
         ];
 
         const era2Scenarios = [
-            {title: 'The Great Drought', desc: 'Water sources disappear. Only small efficient mice survive', cat: 'climate', icon: '🏜️', fav: ['Size']},
+            // Climate 45% (9 scenarios)
+            {title: 'The Great Drought', desc: 'Water vanishes. Only small efficient mice survive', cat: 'climate', icon: '🏜️', fav: ['Size']},
+            {title: 'The Great Drought', desc: 'Water vanishes. Only small efficient mice survive', cat: 'climate', icon: '🏜️', fav: ['Size']},
+            {title: 'The Great Drought', desc: 'Water vanishes. Only small efficient mice survive', cat: 'climate', icon: '🏜️', fav: ['Size']},
+            {title: 'The Great Drought', desc: 'Water vanishes. Only small efficient mice survive', cat: 'climate', icon: '🏜️', fav: ['Size']},
+            {title: 'Extreme Cold', desc: 'Record-breaking winter', cat: 'climate', icon: '❄️', fav: ['Fur']},
+            {title: 'Extreme Cold', desc: 'Record-breaking winter', cat: 'climate', icon: '❄️', fav: ['Fur']},
+            {title: 'Seed Failure', desc: 'Trees dont produce seeds', cat: 'climate', icon: '🌾', fav: ['Teeth']},
+            {title: 'Seed Failure', desc: 'Trees dont produce seeds', cat: 'climate', icon: '🌾', fav: ['Teeth']},
+            {title: 'Unpredictable Weather', desc: 'Warm then freezing constantly', cat: 'climate', icon: '⛈️', fav: []},
+            // Predation 20% (4 scenarios)
             {title: 'Predator Invasion', desc: 'New apex predators arrive. Need speed and camouflage', cat: 'predation', icon: '🦁', fav: ['Color', 'Activity', 'Tail']},
-            {title: 'Crop Failure', desc: 'Food sources collapse. Need specialized teeth', cat: 'climate', icon: '🌾', fav: ['Teeth']},
+            {title: 'Predator Invasion', desc: 'New apex predators arrive. Need speed and camouflage', cat: 'predation', icon: '🦁', fav: ['Color', 'Activity', 'Tail']},
+            {title: 'Predator Invasion', desc: 'New apex predators arrive. Need speed and camouflage', cat: 'predation', icon: '🦁', fav: ['Color', 'Activity', 'Tail']},
+            {title: 'Predator Invasion', desc: 'New apex predators arrive. Need speed and camouflage', cat: 'predation', icon: '🦁', fav: ['Color', 'Activity', 'Tail']},
+            // Environment 20% (4 scenarios)
             {title: 'Flood Disaster', desc: 'Burrows destroyed. Need strong digging claws', cat: 'environment', icon: '🌊', fav: ['Claws']},
-            {title: 'Disease Outbreak', desc: 'Parasites spread. Need strong immunity', cat: 'disease', icon: '🦠', fav: ['Immunity']}
+            {title: 'Flood Disaster', desc: 'Burrows destroyed. Need strong digging claws', cat: 'environment', icon: '🌊', fav: ['Claws']},
+            {title: 'Timing Mismatch', desc: 'Insects emerge late. Predators arrive early', cat: 'environment', icon: '🔄', fav: []},
+            {title: 'Timing Mismatch', desc: 'Insects emerge late. Predators arrive early', cat: 'environment', icon: '🔄', fav: []},
+            // Disease 5% (1 scenario)
+            {title: 'Disease Outbreak', desc: 'Parasites spread year-round', cat: 'disease', icon: '🦠', fav: ['Immunity']},
+            // Good Times 10% (2 scenarios)
+            {title: 'Brief Abundance', desc: 'Temporary food surplus', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'Brief Abundance', desc: 'Temporary food surplus', cat: 'good-times', icon: '🌟', fav: []}
         ];
 
         const era3Scenarios = [
             {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
-            {title: 'Gradual Recovery', desc: 'Resources slowly return for all', cat: 'climate', icon: '📈', fav: []}
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'New Equilibrium', desc: 'Ecosystem stabilizes. Adapted mice thrive', cat: 'good-times', icon: '🌟', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []},
+            {title: 'Gradual Recovery', desc: 'Resources slowly return', cat: 'climate', icon: '📈', fav: []}
         ];
 
+        // UTILITIES
         async function firebase(method, path, data = null) {
             try {
                 const opts = {method: method, headers: {'Content-Type': 'application/json'}};
@@ -246,7 +326,7 @@
                 const res = await fetch(`${FIREBASE_URL}${path}.json`, opts);
                 return await res.json();
             } catch (e) {
-                console.log(e);
+                console.error('Firebase error:', e);
                 return null;
             }
         }
@@ -256,39 +336,84 @@
             document.getElementById(id).classList.add('active');
         }
 
+        function generateSpeciesName() {
+            const adjectives = ['nocturnalis', 'fossorus', 'velox', 'umbrosus', 'sapiens', 'agilis', 'magnus', 'minimus', 'aureus', 'coloratus'];
+            const commonNames = ['Shadow Walker', 'Night Runner', 'Swift Digger', 'Camouflage Master', 'Ghost Mouse', 'Clever One', 'Survivor', 'Mountain Dweller', 'Forest Phantom', 'Desert Mouse'];
+            
+            let scientificParts = [];
+            if (gameState.studentMouse['Activity'] === 'Nocturnal') scientificParts.push('nocturnal');
+            if (gameState.studentMouse['Size'] === 'Small') scientificParts.push('minimus');
+            if (gameState.studentMouse['Color'] === 'Brown') scientificParts.push('umbrosus');
+            if (gameState.studentMouse['Claws'] === 'Long') scientificParts.push('fossorus');
+            if (gameState.studentMouse['Tail'] === 'Long') scientificParts.push('velox');
+            
+            const scientific = scientificParts.length > 0 ? scientificParts[0] : adjectives[Math.floor(Math.random() * adjectives.length)];
+            const common = commonNames[Math.floor(Math.random() * commonNames.length)];
+            
+            return {scientific: `*Mus ${scientific}*`, common: `"${common} Mouse"`};
+        }
+
+        function checkSpeciation() {
+            let shiftsOver15 = 0;
+            // Check each trait to see if any option shifted >15% from starting frequency
+            Object.keys(gameState.traitFrequency).forEach(traitName => {
+                const freq = gameState.traitFrequency[traitName];
+                Object.keys(freq).forEach(option => {
+                    if (Math.abs(freq[option] - 0.5) > 0.15) {
+                        shiftsOver15++;
+                    }
+                });
+            });
+            
+            const hasAdaptation = gameState.adaptationsUnlocked.length > 0;
+            console.log('Speciation check: shifts=' + shiftsOver15 + ', adaptations=' + gameState.adaptationsUnlocked.length);
+            return shiftsOver15 >= 3 && hasAdaptation;
+        }
+
+        function initTraitFrequency() {
+            traits.forEach(t => {
+                gameState.traitFrequency[t.name] = {};
+                t.opts.forEach(opt => {
+                    gameState.traitFrequency[t.name][opt] = 0.5;
+                });
+            });
+        }
+
+        // TEACHER FUNCTIONS
         function goTeacher() {
             gameState.mode = 'teacher';
             gameState.classCode = Math.random().toString(36).substr(2, 6).toUpperCase();
             document.getElementById('classCode').textContent = gameState.classCode;
             show('teacherScreen');
+            
+            if (teacherInterval) clearInterval(teacherInterval);
             updateTeacher();
-            setInterval(updateTeacher, 2000);
+            teacherInterval = setInterval(updateTeacher, 2000);
+            createWheel();
         }
 
-        function goStudent() {
-            show('studentScreen');
-            initTraits();
-        }
-
-        function initTraits() {
-            const container = document.getElementById('traitContainer');
-            container.innerHTML = '';
-            traits.forEach(trait => {
-                const div = document.createElement('div');
-                div.className = 'trait-section';
-                div.innerHTML = `<div class="trait-label">${trait.name}</div><div class="trait-options">`;
-                trait.opts.forEach(opt => {
-                    const btn = document.createElement('button');
-                    btn.className = 'trait-btn';
-                    btn.textContent = opt;
-                    btn.onclick = () => {
-                        gameState.studentMouse[trait.name] = opt;
-                        div.querySelectorAll('.trait-btn').forEach(b => b.classList.remove('selected'));
-                        btn.classList.add('selected');
-                    };
-                    div.querySelector('.trait-options').appendChild(btn);
-                });
-                container.appendChild(div);
+        function createWheel() {
+            const wheel = document.getElementById('wheel');
+            const scenarios = gameState.era === 1 ? era1Scenarios : gameState.era === 2 ? era2Scenarios : era3Scenarios;
+            
+            wheel.innerHTML = '<div class="wheel-pointer"></div>';
+            
+            const colors = {
+                'climate': '#ff9800',
+                'predation': '#f44336',
+                'environment': '#009688',
+                'disease': '#9c27b0',
+                'good-times': '#4caf50'
+            };
+            
+            scenarios.forEach((s, i) => {
+                const angle = (i / scenarios.length) * 360;
+                const section = document.createElement('div');
+                section.className = 'wheel-section';
+                section.style.transform = `rotate(${angle}deg)`;
+                section.style.background = colors[s.cat];
+                section.textContent = s.icon;
+                wheel.appendChild(section);
             });
         }
 
@@ -350,31 +475,71 @@
                 return;
             }
             gameState.round++;
+            
             if (gameState.round === 11 && gameState.era === 1) {
                 gameState.era = 2;
-                alert('🚨 ERA SHIFT! Major disruption event! Era 2 begins!');
+                createWheel();
+                alert('🚨 ERA SHIFT! Major disruption! Era 2 begins!');
             } else if (gameState.round === 21 && gameState.era === 2) {
                 gameState.era = 3;
+                createWheel();
                 alert('📈 ERA SHIFT! Ecosystem stabilizes! Era 3 begins!');
             } else if (gameState.round === 31) {
-                alert('Game Over!');
-                gameState.round = 1;
-                gameState.era = 1;
+                endGame();
+                return;
             }
+            
             firebase('PUT', `/classes/${gameState.classCode}/round`, {round: gameState.round, era: gameState.era});
             updateTeacher();
             spinWheel();
+        }
+
+        function logout() {
+            gameState = {mode: null, classCode: null, round: 1, era: 1, currentScenario: null};
+            if (teacherInterval) clearInterval(teacherInterval);
+            show('modeScreen');
+        }
+
+        // STUDENT FUNCTIONS
+        function goStudent() {
+            show('studentScreen');
+            initTraits();
+        }
+
+        function initTraits() {
+            const container = document.getElementById('traitContainer');
+            container.innerHTML = '';
+            traits.forEach(trait => {
+                const div = document.createElement('div');
+                div.className = 'trait-section';
+                div.innerHTML = `<div class="trait-label">${trait.name}</div><div class="trait-options">`;
+                trait.opts.forEach(opt => {
+                    const btn = document.createElement('button');
+                    btn.className = 'trait-btn';
+                    btn.textContent = opt;
+                    btn.onclick = () => {
+                        gameState.studentMouse[trait.name] = opt;
+                        div.querySelectorAll('.trait-btn').forEach(b => b.classList.remove('selected'));
+                        btn.classList.add('selected');
+                    };
+                    div.querySelector('.trait-options').appendChild(btn);
+                });
+                container.appendChild(div);
+            });
         }
 
         function startGame() {
             const name = document.getElementById('studentName').value.trim();
             const code = document.getElementById('classCodeInput').value.trim().toUpperCase();
             if (!name || !code || Object.keys(gameState.studentMouse).length < 9) {
-                alert('Fill all fields');
+                alert('Fill all fields and select all traits');
                 return;
             }
+            
             gameState.studentName = name;
             gameState.classCode = code;
+            initTraitFrequency();
+            
             firebase('PUT', `/classes/${code}/students/${name}`, {name, population: 100, wins: 0, losses: 0});
             show('gameScreen');
             watchStudent();
@@ -382,26 +547,24 @@
             setInterval(updateStudentLeaderboard, 2000);
         }
 
+        let lastScenarioTitle = null;
         async function watchStudent() {
             const data = await firebase('GET', `/classes/${gameState.classCode}`);
-            if (data && data.scenario) {
-                if (data.scenario.title && data.scenario.title !== gameState.lastScenarioTitle) {
-                    gameState.lastScenarioTitle = data.scenario.title;
-                    gameState.currentScenario = data.scenario;
-                    gameState.resultShown = false;
-                    const s = data.scenario;
-                    const cats = {climate: '🌡️ Climate', predation: '🦅 Predation', environment: '🌍 Environment', disease: '🦠 Disease', 'good-times': '🌟 Good Times'};
-                    document.getElementById('scenarioIcon').textContent = s.icon;
-                    document.getElementById('scenarioTitle').textContent = s.title;
-                    document.getElementById('scenarioDesc').textContent = s.desc;
-                    document.getElementById('categoryDisplay').innerHTML = `<div class="category-badge">${cats[s.cat]}</div>`;
-                    document.getElementById('resultDisplay').innerHTML = '';
-                    document.getElementById('adaptationDisplay').innerHTML = '';
-                    const eraNames = ['', 'Era 1: Natural Variation', 'Era 2: The Disruption', 'Era 3: New Equilibrium'];
-                    document.getElementById('eraDisplay2').textContent = eraNames[s.era];
-                    document.getElementById('roundDisplay2').textContent = `Round ${s.round} / 30`;
-                    console.log('Scenario loaded:', s);
-                }
+            if (data && data.scenario && data.scenario.title !== lastScenarioTitle) {
+                lastScenarioTitle = data.scenario.title;
+                gameState.currentScenario = data.scenario;
+                gameState.resultShown = false;
+                const s = data.scenario;
+                const cats = {climate: '🌡️ Climate', predation: '🦅 Predation', environment: '🌍 Environment', disease: '🦠 Disease', 'good-times': '🌟 Good Times'};
+                document.getElementById('scenarioIcon').textContent = s.icon;
+                document.getElementById('scenarioTitle').textContent = s.title;
+                document.getElementById('scenarioDesc').textContent = s.desc;
+                document.getElementById('categoryDisplay').innerHTML = `<div class="category-badge">${cats[s.cat]}</div>`;
+                document.getElementById('resultDisplay').innerHTML = '';
+                document.getElementById('adaptationDisplay').innerHTML = '';
+                const eraNames = ['', 'Era 1: Natural Variation', 'Era 2: The Disruption', 'Era 3: New Equilibrium'];
+                document.getElementById('eraDisplay2').textContent = eraNames[s.era];
+                document.getElementById('roundDisplay2').textContent = `Round ${s.round} / 30`;
             }
         }
 
@@ -414,16 +577,12 @@
         }
 
         function checkResult() {
-            console.log('=== CHECK RESULT CALLED ===');
-            console.log('Current scenario:', gameState.currentScenario);
-            console.log('Population before:', gameState.population);
-            
             if (!gameState.currentScenario) {
-                alert('No scenario loaded yet. Wait for teacher to send scenario.');
+                alert('No scenario loaded yet');
                 return;
             }
             if (gameState.resultShown) {
-                alert('You already checked this round. Click Ready for Next.');
+                alert('Already checked this round');
                 return;
             }
             gameState.resultShown = true;
@@ -435,42 +594,50 @@
                 won = true;
                 change = Math.floor(gameState.population * 0.20);
                 gameState.population += change;
-                console.log('Good times! Change:', change, 'New pop:', gameState.population);
                 document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✨ Good times!<br><span class="pop-change pop-increase">+${change}</span></div>`;
             } else {
-                won = gameState.currentScenario.fav.some(trait => {
-                    const val = gameState.studentMouse[trait];
-                    console.log('Checking trait:', trait, '=', val);
-                    return val === 'Small' || val === 'Long' || val === 'Brown' || val === 'Nocturnal';
+                const favorableValues = {
+                    'Size': 'Small', 'Color': 'Brown', 'Activity': 'Nocturnal', 'Tail': 'Long',
+                    'Claws': 'Long', 'Teeth': 'Long', 'Immunity': 'Type B', 'Fur': 'Long', 'Social': 'Social'
+                };
+                
+                won = gameState.currentScenario.fav.some(traitName => {
+                    return gameState.studentMouse[traitName] === favorableValues[traitName];
                 });
+                
                 if (won) {
                     gameState.wins++;
                     change = Math.floor(gameState.population * 0.15);
                     gameState.population += change;
-                    console.log('WIN! Change:', change, 'New pop:', gameState.population);
                     document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-win">✅ Traits matched!<br><span class="pop-change pop-increase">+${change}</span></div>`;
+                    // Update trait frequency toward the favorable trait
+                    gameState.currentScenario.fav.forEach(trait => {
+                        const favorable = favorableValues[trait];
+                        gameState.traitFrequency[trait][favorable] += 0.05;
+                    });
                 } else {
                     gameState.losses++;
                     change = Math.floor(Math.abs(gameState.population) * 0.10);
                     gameState.population -= change;
-                    console.log('LOSS! Change:', change, 'New pop:', gameState.population);
                     document.getElementById('resultDisplay').innerHTML = `<div class="result-box result-loss">❌ Traits didn't match<br><span class="pop-change pop-decrease">-${change}</span></div>`;
                 }
             }
 
-            console.log('Final population:', gameState.population);
             checkAdaptations();
             updateStudentStats();
         }
 
         function checkAdaptations() {
             adaptations.forEach(adap => {
-                let match = true;
-                Object.keys(adap.traits).forEach(t => {
-                    if (gameState.studentMouse[t] !== adap.traits[t]) match = false;
-                });
-                if (match && Math.random() > 0.6) {
-                    document.getElementById('adaptationDisplay').innerHTML = `<div class="adaptation-badge">🧬 NEW ADAPTATION UNLOCKED: ${adap.name}!</div>`;
+                if (!gameState.adaptationsUnlocked.includes(adap.name)) {
+                    let match = true;
+                    Object.keys(adap.traits).forEach(t => {
+                        if (gameState.studentMouse[t] !== adap.traits[t]) match = false;
+                    });
+                    if (match && Math.random() > 0.6) {
+                        gameState.adaptationsUnlocked.push(adap.name);
+                        document.getElementById('adaptationDisplay').innerHTML = `<div class="adaptation-badge">🧬 NEW ADAPTATION: ${adap.name}!</div>`;
+                    }
                 }
             });
         }
@@ -483,11 +650,47 @@
         }
 
         function readyNext() {
-            alert('Waiting for teacher to advance...');
+            alert('Waiting for teacher...');
         }
 
-        function logout() {
-            gameState = {mode: null, classCode: null, round: 1, era: 1, currentScenario: null};
+        // END GAME
+        async function endGame() {
+            const speciation = checkSpeciation();
+            const species = generateSpeciesName();
+            
+            let speciationMsg = '';
+            if (speciation) {
+                speciationMsg = `<p style="color: #2e7d32; font-size: 16px; font-weight: bold; margin: 20px 0;">✅ NEW SPECIES EVOLVED!</p>`;
+            } else {
+                speciationMsg = `<p style="color: #666; margin: 20px 0;">Population survived but did not evolve into new species</p>`;
+            }
+            
+            document.getElementById('speciesName').innerHTML = `${species.scientific}<br><small>${species.common}</small>`;
+            document.getElementById('speciationMessage').innerHTML = speciationMsg;
+            
+            let traitHtml = '';
+            traits.forEach(t => {
+                const freq = gameState.traitFrequency[t.name];
+                let dominant = 'Unknown';
+                Object.keys(freq).forEach(opt => {
+                    if (Math.abs(freq[opt] - Math.max(...Object.values(freq))) < 0.01) dominant = opt;
+                });
+                traitHtml += `<div class="trait-item"><div class="trait-item-label">${t.name}</div><div class="trait-item-freq">${dominant}</div></div>`;
+            });
+            document.getElementById('traitFreqDisplay').innerHTML = traitHtml;
+            
+            // Get final leaderboard
+            const students = await firebase('GET', `/classes/${gameState.classCode}/students`);
+            if (students) {
+                const list = Object.values(students).map(s => ({name: s.name, pop: s.population || 100})).sort((a,b) => b.pop - a.pop);
+                document.getElementById('finalLeaderboard').innerHTML = list.map(s => `<div class="leaderboard-entry"><span class="leaderboard-name">${s.name}</span><span class="leaderboard-pop">${s.pop}</span></div>`).join('');
+            }
+            
+            show('endGameScreen');
+        }
+
+        function newGame() {
+            gameState = {mode: null, classCode: null, round: 1, era: 1, currentScenario: null, lastScenarioTitle: null, studentName: '', studentMouse: {}, population: 100, wins: 0, losses: 0, resultShown: false, traitFrequency: {}, adaptationsUnlocked: []};
             show('modeScreen');
         }
     </script>
